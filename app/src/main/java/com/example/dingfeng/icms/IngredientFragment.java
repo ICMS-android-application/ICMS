@@ -1,16 +1,18 @@
 package com.example.dingfeng.icms;
 
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 public class IngredientFragment extends android.support.v4.app.Fragment{
 
-    public static final String ARG_OBJECT = "object";
-
-
+    private Uri uri;
+    public ImageView imageView;
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -29,6 +31,10 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        imageView = (ImageView)getActivity().findViewById(R.id.result_imageview);
+        uri = ((ResultActivity)getActivity()).getImageURI();
+        imageView.setImageURI(uri);
+        imageView.setRotation(90);
     }
 
 

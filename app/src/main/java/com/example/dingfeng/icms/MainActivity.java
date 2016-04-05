@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private android.net.Uri selectedImage;
 
+    public final static String EXTRA_MESSAGE = "com.example.dingfeng.icms.MESSAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), ResultActivity.class);
-                        intent.putExtra("uri", selectedImage);
+                        intent.putExtra(EXTRA_MESSAGE, selectedImage.toString());
                         startActivity(intent);
                     }
                 }
