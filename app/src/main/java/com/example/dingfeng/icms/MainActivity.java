@@ -1,5 +1,6 @@
 package com.example.dingfeng.icms;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -24,6 +25,12 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private static final int CAM_CODE=1111;
     private static final int PICK_CODE=1112;
+
+    private Button processBtn;
+
+    private android.net.Uri selectedImage;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         camera=(Button) findViewById(R.id.camera);
         gallery=(Button) findViewById(R.id.gallery);
         imageView=(ImageView) findViewById(R.id.imageView);
+        processBtn = (Button) findViewById(R.id.process_btn);
+        processBtn.setEnabled(false);
 
         camera.setOnClickListener(
                 new View.OnClickListener() {
@@ -57,6 +66,18 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        processBtn.setOnClickListener(
+                new View.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(v.getContext(), ResultActivity.class);
+                        intent.putExtra("uri", selectedImage);
+                        startActivity(intent);
+                    }
+                }
+        );
+
 
     }
 
@@ -65,18 +86,26 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==RESULT_OK && requestCode==PICK_CODE)
         {
-            Uri selectedImage=data.getData();
+            selectedImage=data.getData();
             String path=getPath(selectedImage);
             Bitmap bitmapImage= BitmapFactory.decodeFile(path);
-            imageView.setImageBitmap(bitmapImage);
+            imageView.setImageURI(selectedImage);
+            imageView.setRotation(90);
+            processBtn.setEnabled(true);
+
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
+            selectedImage = data.getData();
             Bitmap bp=(Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(bp);
+            imageView.setImageURI(selectedImage);
+            imageView.setRotation(90);
+            processBtn.setEnabled(true);
         }
 
     }
+
+
     public String getPath(Uri uri){
         String[] filePathColumn={MediaStore.Images.Media.DATA};
         Cursor cursor=getContentResolver().query(uri, filePathColumn, null, null, null);

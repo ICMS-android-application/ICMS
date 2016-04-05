@@ -12,7 +12,7 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="417dp"
+        android:layout_height="500dp"
         android:id="@+id/imageView"
         android:layout_gravity="center_horizontal" />
 
@@ -36,6 +36,14 @@
             android:id="@+id/gallery"
             android:layout_alignTop="@+id/camera"
             android:layout_alignParentEnd="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Process image"
+            android:id="@+id/process_btn"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
 </LinearLayout>
