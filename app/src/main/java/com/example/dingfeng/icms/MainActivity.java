@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
 
     public final static String EXTRA_MESSAGE = "com.example.dingfeng.icms.MESSAGE";
 
+    private Intent resultData;
+    private Bitmap bitmapImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +76,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), ResultActivity.class);
-                        intent.putExtra(EXTRA_MESSAGE, selectedImage.toString());
+
+                        Bundle extras = new Bundle();
+                        extras.putString("uri", selectedImage.toString());
+                        extras.putParcelable("image", bitmapImage);
+
+                        intent.putExtras(extras);
                         startActivity(intent);
                     }
                 }
@@ -85,20 +93,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode,int resultCode,Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
+
+        resultData = data;
         if(resultCode==RESULT_OK && requestCode==PICK_CODE)
         {
             selectedImage=data.getData();
             String path=getPath(selectedImage);
-            Bitmap bitmapImage= BitmapFactory.decodeFile(path);
+            bitmapImage= BitmapFactory.decodeFile(path);
             imageView.setImageURI(selectedImage);
-            imageView.setRotation(90);
             processBtn.setEnabled(true);
 
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
             selectedImage = data.getData();
-            Bitmap bp=(Bitmap) data.getExtras().get("data");
+            bitmapImage=(Bitmap) data.getExtras().get("data");
             imageView.setImageURI(selectedImage);
             imageView.setRotation(90);
             processBtn.setEnabled(true);

@@ -13,6 +13,7 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
 
     private Uri uri;
     public ImageView imageView;
+    private android.graphics.Bitmap image;
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -32,9 +33,11 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
         super.onActivityCreated(savedInstanceState);
 
         imageView = (ImageView)getActivity().findViewById(R.id.result_imageview);
+/*        image = ((ResultActivity)getActivity()).getImage();
+        imageView.setImageBitmap(image);*/
+
         uri = ((ResultActivity)getActivity()).getImageURI();
         imageView.setImageURI(uri);
-        imageView.setRotation(90);
     }
 
 
