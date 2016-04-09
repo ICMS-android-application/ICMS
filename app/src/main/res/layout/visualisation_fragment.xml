@@ -14,16 +14,21 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:id="@+id/image_view"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.42" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="New Text"
         android:id="@+id/text_view"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.12" />
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/graph"/>
 </LinearLayout>
