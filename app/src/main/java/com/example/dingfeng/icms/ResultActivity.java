@@ -15,6 +15,19 @@ import android.widget.ImageButton;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,6 +63,13 @@ public class ResultActivity extends AppCompatActivity{
         }catch (IOException e){
 
         }
+        //Mat _img=new Mat();
+        //Utils.bitmapToMat(image,_img);
+
+
+
+
+
 
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
@@ -167,6 +187,28 @@ public class ResultActivity extends AppCompatActivity{
 
     public Bitmap getImage(){
         return image;
+    }
+
+
+
+    private Mat computeDeskew(Mat _img)
+    {
+        Size size=_img.size();
+        Core.bitwise_not(_img, _img);//reverse black and white
+        Mat lines=new Mat();
+        Imgproc.HoughLinesP(_img,lines,1,Math.PI/180,70,size.width/2.f,20);
+        double angle=0;
+        for(int i=0;i<lines.height();i++)
+        {
+            for(int j=0;j<lines.width();j++)
+                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+        }
+        angle/=lines.size().area();
+
+        Point center=new Point(size.width/2,size.height/2);
+        Mat rotImage=Imgproc.getRotationMatrix2D(center,angle,1.0);//100% scale
+        Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
+        return _img;
     }
 
 }
