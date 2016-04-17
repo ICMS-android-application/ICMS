@@ -63,11 +63,11 @@ public class ResultActivity extends AppCompatActivity{
         }catch (IOException e){
 
         }
+
         //Mat _img=new Mat();
         //Utils.bitmapToMat(image,_img);
-
-
-
+        //_img=binarization(_img);
+        //_img=computeDeskew(_img);
 
 
 
@@ -82,8 +82,6 @@ public class ResultActivity extends AppCompatActivity{
 
 
         TARGET_BASE_PATH = Environment.getExternalStorageDirectory() + "/tesseract/";
-
-
 
 
          baseApi = new TessBaseAPI();
@@ -190,7 +188,6 @@ public class ResultActivity extends AppCompatActivity{
     }
 
 
-
     private Mat computeDeskew(Mat _img)
     {
         Size size=_img.size();
@@ -210,5 +207,12 @@ public class ResultActivity extends AppCompatActivity{
         Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
         return _img;
     }
+
+    private Mat binarization(Mat _img)
+    {
+        Imgproc.adaptiveThreshold(_img, _img, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,11,2);
+        return _img;
+    }
+
 
 }
