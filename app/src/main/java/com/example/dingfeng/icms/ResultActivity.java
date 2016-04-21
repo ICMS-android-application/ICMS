@@ -64,10 +64,12 @@ public class ResultActivity extends AppCompatActivity{
 
         }
 
-        //Mat _img=new Mat();
-        //Utils.bitmapToMat(image,_img);
-        //_img=binarization(_img);
-        //_img=computeDeskew(_img);
+        Mat _img=new Mat();
+        Utils.bitmapToMat(image,_img);
+        _img=binarization(_img);
+        _img=computeDeskew(_img);
+        Bitmap bmp=Bitmap.createBitmap(_img.cols(),_img.rows(),Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(_img, bmp);
 
 
 

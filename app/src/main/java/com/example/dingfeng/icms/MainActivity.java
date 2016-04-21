@@ -19,6 +19,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
 public class MainActivity extends AppCompatActivity {
     private Button camera;
     private Button gallery;
@@ -35,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private Intent resultData;
     private Bitmap bitmapImage;
 
+    private int state;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
         processBtn.setEnabled(false);
+
+        state = 0;
 
         camera.setOnClickListener(
                 new View.OnClickListener() {
@@ -75,6 +85,14 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(View v) {
+
+                        state++;
+                        switch(state){
+                            case 1:
+
+                        }
+
+
                         Intent intent = new Intent(v.getContext(), ResultActivity.class);
 
                         Bundle extras = new Bundle();
@@ -125,6 +143,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+    private Mat computeDeskew(Mat _img)
+    {
+        Size size=_img.size();
+        Core.bitwise_not(_img, _img);//reverse black and white
+        Mat lines=new Mat();
+        Imgproc.HoughLinesP(_img, lines, 1, Math.PI / 180, 70, size.width / 2.f, 20);
+        double angle=0;
+        for(int i=0;i<lines.height();i++)
+        {
+            for(int j=0;j<lines.width();j++)
+                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+        }
+        angle/=lines.size().area();
+
+        Point center=new Point(size.width/2,size.height/2);
+        Mat rotImage=Imgproc.getRotationMatrix2D(center,angle,1.0);//100% scale
+        Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
+        return _img;
+    }
+
+    private Mat binarization(Mat _img)
+    {
+        Imgproc.adaptiveThreshold(_img, _img, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        return _img;
+    }
 
 
 
