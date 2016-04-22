@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -42,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmapImage;
 
     private int state;
+
+
+    static {
+        System.loadLibrary("opencv_java");
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,18 +97,40 @@ public class MainActivity extends AppCompatActivity {
                         state++;
                         switch(state){
                             case 1:
+                                Mat _img=new Mat();
+                                Utils.bitmapToMat(bitmapImage, _img);
+                                _img=binarization(_img);
+                                bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                                Utils.matToBitmap(_img, bitmapImage);
 
+                                imageView.setImageBitmap(bitmapImage);
+
+                                break;
+
+                            case 2:
+                                _img=new Mat();
+                                Utils.bitmapToMat(bitmapImage, _img);
+                                _img=binarization(_img);
+                                _img=computeDeskew(_img);
+                                bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                                Utils.matToBitmap(_img, bitmapImage);
+
+                                imageView.setImageBitmap(bitmapImage);
+                                break;
+                            default:
+                                Intent intent = new Intent(v.getContext(), ResultActivity.class);
+
+                                Bundle extras = new Bundle();
+                                extras.putString("uri", selectedImage.toString());
+                                extras.putParcelable("image", bitmapImage);
+
+                                intent.putExtras(extras);
+                                startActivity(intent);
+                                break;
                         }
 
 
-                        Intent intent = new Intent(v.getContext(), ResultActivity.class);
 
-                        Bundle extras = new Bundle();
-                        extras.putString("uri", selectedImage.toString());
-                        extras.putParcelable("image", bitmapImage);
-
-                        intent.putExtras(extras);
-                        startActivity(intent);
                     }
                 }
         );
@@ -118,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             selectedImage=data.getData();
             String path=getPath(selectedImage);
             bitmapImage= BitmapFactory.decodeFile(path);
-            imageView.setImageURI(selectedImage);
+            imageView.setImageBitmap(bitmapImage);
             processBtn.setEnabled(true);
 
         }
@@ -126,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         {
             selectedImage = data.getData();
             bitmapImage=(Bitmap) data.getExtras().get("data");
-            imageView.setImageURI(selectedImage);
+            imageView.setImageBitmap(bitmapImage);
             imageView.setRotation(90);
             processBtn.setEnabled(true);
         }
