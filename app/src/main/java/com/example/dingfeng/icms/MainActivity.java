@@ -27,6 +27,8 @@ import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
     private Button camera;
     private Button gallery;
@@ -45,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int state;
 
-
+/*
     static {
         System.loadLibrary("opencv_java");
-    }
+    }*/
 
 
     @Override
@@ -147,7 +149,11 @@ public class MainActivity extends AppCompatActivity {
         {
             selectedImage=data.getData();
             String path=getPath(selectedImage);
-            bitmapImage= BitmapFactory.decodeFile(path);
+            try{
+                bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+            }catch(IOException e){
+
+            }
             imageView.setImageBitmap(bitmapImage);
             processBtn.setEnabled(true);
 
@@ -156,8 +162,14 @@ public class MainActivity extends AppCompatActivity {
         {
             selectedImage = data.getData();
             bitmapImage=(Bitmap) data.getExtras().get("data");
+            try{
+                bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+            }catch(IOException e){
+
+            }
             imageView.setImageBitmap(bitmapImage);
-            imageView.setRotation(90);
+
+//            imageView.setRotation(90);
             processBtn.setEnabled(true);
         }
 
