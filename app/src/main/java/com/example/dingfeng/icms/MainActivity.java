@@ -168,13 +168,14 @@ public class MainActivity extends AppCompatActivity {
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
             selectedImage = data.getData();
-            String path=getPath(selectedImage);
+            bitmapImage=(Bitmap) data.getExtras().get("data");
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             }catch(IOException e){
 
             }
             imageView.setImageBitmap(bitmapImage);
+
 
 //            imageView.setRotation(90);
             processBtn.setEnabled(true);
