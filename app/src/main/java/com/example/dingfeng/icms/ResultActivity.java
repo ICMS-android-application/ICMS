@@ -57,19 +57,14 @@ public class ResultActivity extends AppCompatActivity{
         String uriMessage = intent.getStringExtra("uri");
         imageURI = Uri.parse(uriMessage);
 
-//        image = intent.getParcelableExtra("image");
+        image = intent.getParcelableExtra("image");
+        /*
         try{
             image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
         }catch (IOException e){
 
         }
-
-        Mat _img=new Mat();
-        Utils.bitmapToMat(image,_img);
-        _img=binarization(_img);
-        _img=computeDeskew(_img);
-        Bitmap bmp=Bitmap.createBitmap(_img.cols(),_img.rows(),Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(_img, bmp);
+*/
 
 
 

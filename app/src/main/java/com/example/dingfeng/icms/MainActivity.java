@@ -18,10 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
@@ -47,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int state;
 
-/*
+
     static {
         System.loadLibrary("opencv_java");
-    }*/
+    }
 
 
     @Override
@@ -99,25 +101,30 @@ public class MainActivity extends AppCompatActivity {
                         state++;
                         switch(state){
                             case 1:
-                                Mat _img=new Mat();
+                                Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
                                 Utils.bitmapToMat(bitmapImage, _img);
+                                Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
                                 _img=binarization(_img);
                                 bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
                                 Utils.matToBitmap(_img, bitmapImage);
 
                                 imageView.setImageBitmap(bitmapImage);
+                                Toast.makeText(getApplicationContext(),"binarization",Toast.LENGTH_SHORT).show();
 
                                 break;
 
                             case 2:
-                                _img=new Mat();
+                                _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
                                 Utils.bitmapToMat(bitmapImage, _img);
-                                _img=binarization(_img);
+                                Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
+                                //_img=binarization(_img);
                                 _img=computeDeskew(_img);
                                 bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
                                 Utils.matToBitmap(_img, bitmapImage);
 
                                 imageView.setImageBitmap(bitmapImage);
+
+                                Toast.makeText(getApplicationContext(),"deskew",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
                                 Intent intent = new Intent(v.getContext(), ResultActivity.class);
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
             selectedImage = data.getData();
-            bitmapImage=(Bitmap) data.getExtras().get("data");
+            String path=getPath(selectedImage);
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             }catch(IOException e){
@@ -192,24 +199,29 @@ public class MainActivity extends AppCompatActivity {
         Size size=_img.size();
         Core.bitwise_not(_img, _img);//reverse black and white
         Mat lines=new Mat();
-        Imgproc.HoughLinesP(_img, lines, 1, Math.PI / 180, 70, size.width / 2.f, 20);
+        Imgproc.HoughLinesP(_img, lines, 1, Math.PI / 180, 100, size.width / 2.f, 20);
         double angle=0;
-        for(int i=0;i<lines.height();i++)
+        for(int i=0;i<lines.rows(); i++)
         {
-            for(int j=0;j<lines.width();j++)
-                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+            double[] vec=lines.get(i,0);
+            angle+=Math.atan2(vec[3]-vec[1],vec[2]-vec[0]);
+                //angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
         }
-        angle/=lines.size().area();
+        angle/=lines.rows();
+        angle=angle / Math.PI * 180.0;
+
+        System.out.println("!!!!!!!!!!!!!!!"+angle+"!!!!!!!!!!!!1");
+
 
         Point center=new Point(size.width/2,size.height/2);
         Mat rotImage=Imgproc.getRotationMatrix2D(center,angle,1.0);//100% scale
-        Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
+        Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_CUBIC );
         return _img;
     }
 
     private Mat binarization(Mat _img)
     {
-        Imgproc.adaptiveThreshold(_img, _img, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        Imgproc.adaptiveThreshold(_img, _img, 255.0, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2.0);
         return _img;
     }
 
