@@ -58,13 +58,13 @@ public class ResultActivity extends AppCompatActivity{
         imageURI = Uri.parse(uriMessage);
 
         image = intent.getParcelableExtra("image");
-        /*
+
         try{
             image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
         }catch (IOException e){
 
         }
-*/
+
 
 
 
@@ -184,7 +184,7 @@ public class ResultActivity extends AppCompatActivity{
         return image;
     }
 
-
+/*
     private Mat computeDeskew(Mat _img)
     {
         Size size=_img.size();
@@ -210,6 +210,6 @@ public class ResultActivity extends AppCompatActivity{
         Imgproc.adaptiveThreshold(_img, _img, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,11,2);
         return _img;
     }
-
+*/
 
 }

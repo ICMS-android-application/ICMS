@@ -50,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private int state;
 
 
-    static {
+   /* static {
         System.loadLibrary("opencv_java");
-    }
+    }*/
 
 
     @Override
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
                         state++;
                         switch(state){
-                            case 1:
+                            /*case 1:
                                 Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
                                 Utils.bitmapToMat(bitmapImage, _img);
                                 Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                                 imageView.setImageBitmap(bitmapImage);
 
                                 Toast.makeText(getApplicationContext(),"deskew",Toast.LENGTH_SHORT).show();
-                                break;
+                                break;*/
                             default:
                                 Intent intent = new Intent(v.getContext(), ResultActivity.class);
 
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+/*
 
     private Mat computeDeskew(Mat _img)
     {
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+*/
 
 
 
