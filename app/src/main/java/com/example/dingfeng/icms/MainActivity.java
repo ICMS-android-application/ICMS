@@ -131,11 +131,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 Bundle extras = new Bundle();
                                 extras.putString("uri", selectedImage.toString());
-<<<<<<< HEAD
                                 //extras.putParcelable("image", bitmapImage);
-=======
 //                                extras.putParcelable("image", bitmapImage);
->>>>>>> origin/master
 
                                 intent.putExtras(extras);
                                 startActivity(intent);

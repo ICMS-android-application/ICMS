@@ -61,11 +61,10 @@ public class ResultActivity extends AppCompatActivity{
         String uriMessage = intent.getStringExtra("uri");
         imageURI = Uri.parse(uriMessage);
 
-<<<<<<< HEAD
+
         //image = intent.getParcelableExtra("image");
-=======
 //        image = intent.getParcelableExtra("image");
->>>>>>> origin/master
+
 
         try{
             image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
