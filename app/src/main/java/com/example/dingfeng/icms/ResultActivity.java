@@ -34,6 +34,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +51,7 @@ public class ResultActivity extends AppCompatActivity{
 
     ImageButton textBtn;
     String recognizedText;
+    String boxText;
     TessBaseAPI baseApi;
     String TARGET_BASE_PATH;
     @Override
@@ -129,9 +131,46 @@ public class ResultActivity extends AppCompatActivity{
         baseApi.init(datapath, language);
         // Eg. baseApi.init("/mnt/sdcard/tesseract/tessdata/eng.traineddata", "eng");
         baseApi.setImage(image);
+
         recognizedText = baseApi.getUTF8Text();
+
+        boxText = baseApi.getBoxText(0);
+
+        try{
+
+            File testUTF8 = new File(datapath+ "testUTF.txt");
+            if(testUTF8.exists())
+            {
+                testUTF8.delete();
+            }
+            testUTF8 = new File(datapath, "testUTF.txt");
+            FileWriter fwUTF8 = new FileWriter(testUTF8);
+            fwUTF8.append(recognizedText);
+            fwUTF8.flush();
+            fwUTF8.close();
+
+            File testBox = new File(datapath+ "testBox.txt");
+            if(testBox.exists())
+            {
+                testBox.delete();
+            }
+            testBox = new File(datapath, "testBox.txt");
+            FileWriter fwBox = new FileWriter(testBox);
+            fwBox.append(boxtext);
+            fwBox.flush();
+            fwBox.close();
+
+        }catch(IOException e){
+
+        }
+
+
         baseApi.end();
 
+    }
+
+    public void getBoxText(){
+        return boxText;
     }
 
     private void copyFileOrDir(String path) {
