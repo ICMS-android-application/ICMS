@@ -169,7 +169,7 @@ public class ResultActivity extends AppCompatActivity{
 
     }
 
-    public void getBoxText(){
+    public String getBoxText(){
         return boxText;
     }
 
