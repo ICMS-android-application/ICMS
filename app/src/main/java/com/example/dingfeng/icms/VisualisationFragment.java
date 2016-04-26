@@ -49,31 +49,57 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
         super.onActivityCreated(savedInstanceState);
 
         text_view=(TextView)getActivity().findViewById(R.id.text_view);
+        text_view.setText("");
         graph=(GraphView) getActivity().findViewById(R.id.graph);
 
         uri = ((ResultActivity)getActivity()).getImageURI();
 
         result=((ResultActivity)getActivity()).getRecognizedText();
 
-        ArrayList<String> output=process_result(result);
-        final String[] name=new String[output.size()];
-        int[] percentage=new int[output.size()];
+        ArrayList<String> name_arrayList=new ArrayList<String>();
+        ArrayList<Integer> percentage_arrayList=new ArrayList<Integer>();
+
+        process_result(result, name_arrayList, percentage_arrayList);
+
+        final String[] name=new String[name_arrayList.size()];
+        name_arrayList.toArray(name);
+        int[] percentage=new int[percentage_arrayList.size()];
+
         int index=0;
-        int max_value=0;
+        int ave_value=0;
+
+        for(Integer i:percentage_arrayList) {
+            percentage[index] = i;
+            ave_value+=i;
+            index++;
+        }
+
+        for(int i=0;i<index;i++)
+        {
+            text_view.setText(text_view.getText()+"\n"+Integer.toString(i)+". "+name[i]);
+        }
+
+
+
+        /*
         for(String s:output)
         {
             if(s!=null) {
                 if(Integer.parseInt(s.replaceAll("\\D",""))!=0) {
                     percentage[index] = Integer.parseInt(s.replaceAll("\\D", ""));
-                    if(percentage[index]>max_value)
-                        max_value=percentage[index];
+
+                    ave_value+=percentage[index];
                     name[index] = s.replaceAll("\\S+%", "");
                     text_view.setText(text_view.getText()+"\n"+Integer.toString(index)+". "+name[index]);
                     index++;
                 }
             }
-        }
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!"+index);
+        }*/
+
+
+
+
+        ave_value/=index;
         DataPoint[] data=new DataPoint[index];
         for(int i=0;i<index;i++)
         {
@@ -86,13 +112,10 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
         graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
 
 
-        graph.getGridLabelRenderer().setNumHorizontalLabels(4);
 
         graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(max_value);
+        graph.getViewport().setMaxY(ave_value);
         graph.getViewport().setYAxisBoundsManual(true);
-
-        graph.getViewport().setScrollable(true);
 
 
         graph.getViewport().setMinX(0);
@@ -121,9 +144,6 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
         line_series.setColor(Color.RED);
 
 
-        //graph.getViewport().setXAxisBoundsManual(true);
-        //graph.getViewport().setMinX(0); // set the min value of the viewport of x axis
-        //graph.getViewport().setMaxX(index-1);
 
         series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
             @Override
@@ -143,23 +163,45 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
     }
 
 
-    private ArrayList<String> process_result(String input)
+    private void process_result(String input, ArrayList<String> name_arraylist,ArrayList<Integer> percentage_arraylist)
     {
         String[] lists=input.split("\n");
         ArrayList<String> output=new ArrayList<String>();
         String food="";
         for(String s : lists) {
             if (s.contains("%")&&s.replaceAll("\\D","").length()!=0) {
-                s=s.replaceAll("\\S+g","");
-                if(s.contains("-"))
-                    output.addAll(Arrays.asList(s.split("-")));
+
+                String temp=s.replaceAll("\\d+[g|9]","");
+                temp=temp.replaceAll("\\d+mg","");
+                System.out.println("!!!!!!!!!!!!"+temp+"!!!!!!!!!!!");
+                String t1=temp.replaceAll("[^(\\d+%)]", "");
+
+                percentage_arraylist.add(Integer.parseInt(t1.substring(0, t1.length() - 1)));
+                temp=temp.replaceAll("\\d+%", "");
+                temp=temp.replaceAll("\\d","");
+
+                name_arraylist.add(temp);
+
+/*
+                if(s.contains("-|."))
+                    output.addAll(Arrays.asList(s.split("-|.")));
                 else
                     output.add(s);
-                food=food+s+"\n";
+                */
+
+                //food=food+s+"\n";
+
+
+                //System.out.println("!!!!!!!!!!!!"+s.replaceAll("[^(\\d+%)]","")+"!!!!!!!!!!!");
+
             }
         }
 
-        return output;
+
+
+
+
+
 
 
 
