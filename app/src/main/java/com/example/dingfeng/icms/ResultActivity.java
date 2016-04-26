@@ -156,7 +156,7 @@ public class ResultActivity extends AppCompatActivity{
             }
             testBox = new File(datapath, "testBox.txt");
             FileWriter fwBox = new FileWriter(testBox);
-            fwBox.append(boxtext);
+            fwBox.append(boxText);
             fwBox.flush();
             fwBox.close();
 
