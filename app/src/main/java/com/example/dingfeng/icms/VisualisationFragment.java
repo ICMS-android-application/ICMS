@@ -74,10 +74,7 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
             index++;
         }
 
-        for(int i=0;i<index;i++)
-        {
-            text_view.setText(text_view.getText()+"\n"+Integer.toString(i)+". "+name[i]);
-        }
+
 
 
 
@@ -98,66 +95,74 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
 
 
 
-
-        ave_value/=index;
-        DataPoint[] data=new DataPoint[index];
-        for(int i=0;i<index;i++)
+        if(index!=0)
         {
-            data[i]=new DataPoint(i,percentage[i]);
+
+            for(int i=0;i<index;i++)
+            {
+                text_view.setText(text_view.getText()+"\n"+Integer.toString(i)+". "+name[i]);
+            }
+
+            ave_value /= index;
+            DataPoint[] data = new DataPoint[index];
+            for (int i = 0; i < index; i++) {
+                data[i] = new DataPoint(i, percentage[i]);
+            }
+
+            BarGraphSeries<DataPoint> series = new BarGraphSeries<DataPoint>(data);
+            graph.addSeries(series);
+
+            graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+
+
+            graph.getViewport().setMinY(0);
+            graph.getViewport().setMaxY(ave_value);
+            graph.getViewport().setYAxisBoundsManual(true);
+
+
+            graph.getViewport().setMinX(0);
+            graph.getViewport().setMaxX(index - 1);
+            graph.getViewport().setXAxisBoundsManual(true);
+
+            series.setOnDataPointTapListener(new OnDataPointTapListener() {
+                @Override
+                public void onTap(Series series, DataPointInterface dataPoint) {
+                    Toast.makeText(getContext(), "Series: On Data Point clicked: " + name[(int) dataPoint.getX()], Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+            LineGraphSeries<DataPoint> line_series = new LineGraphSeries<DataPoint>(
+                    new DataPoint[]
+                            {
+                                    new DataPoint(0, 100),
+                                    new DataPoint(1, 100),
+                                    new DataPoint(2, 100),
+                                    new DataPoint(3, 100),
+                                    new DataPoint(4, 100)
+                            }
+            );
+            graph.addSeries(line_series);
+            line_series.setColor(Color.RED);
+
+
+            series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+                @Override
+                public int get(DataPoint data) {
+                    return Color.rgb((int) data.getX() * 255 / 4, (int) Math.abs(data.getY() * 255 / 6), 100);
+                }
+            });
+
+            series.setSpacing(70);
+
+            series.setDrawValuesOnTop(true);
+            series.setValuesOnTopColor(Color.RED);
+
         }
-
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<DataPoint>(data);
-        graph.addSeries(series);
-
-        graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-
-
-
-        graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(ave_value);
-        graph.getViewport().setYAxisBoundsManual(true);
-
-
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(index-1);
-        graph.getViewport().setXAxisBoundsManual(true);
-
-        series.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(getContext(), "Series: On Data Point clicked: " + name[(int)dataPoint.getX()], Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
-        LineGraphSeries<DataPoint> line_series=new LineGraphSeries<DataPoint>(
-                new DataPoint[]
-                        {
-                                new DataPoint(0, 100),
-                                new DataPoint(1, 100),
-                                new DataPoint(2, 100),
-                                new DataPoint(3, 100),
-                                new DataPoint(4, 100)
-                        }
-        );
-        graph.addSeries(line_series);
-        line_series.setColor(Color.RED);
-
-
-
-        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
-            @Override
-            public int get(DataPoint data) {
-                return Color.rgb((int) data.getX() * 255 / 4, (int) Math.abs(data.getY() * 255 / 6), 100);
-            }
-        });
-
-        series.setSpacing(70);
-
-        series.setDrawValuesOnTop(true);
-        series.setValuesOnTopColor(Color.RED);
-
-
+        else
+        {
+            text_view.setText("Did not detect nutrition list");
+        }
 
 
     }
@@ -166,33 +171,66 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
     private void process_result(String input, ArrayList<String> name_arraylist,ArrayList<Integer> percentage_arraylist)
     {
         String[] lists=input.split("\n");
-        ArrayList<String> output=new ArrayList<String>();
-        String food="";
         for(String s : lists) {
-            if (s.contains("%")&&s.replaceAll("\\D","").length()!=0) {
+            if (s.contains("%")&&s.replaceAll("\\D","").length()!=0)
+            {
+                if(s.contains(".")||s.contains("-")) {
+                    String[] output = s.split("[.-]");
 
-                String temp=s.replaceAll("\\d+[g|9]","");
-                temp=temp.replaceAll("\\d+mg","");
-                System.out.println("!!!!!!!!!!!!"+temp+"!!!!!!!!!!!");
-                String t1=temp.replaceAll("[^(\\d+%)]", "");
+                    for(String i:output)
+                    {
+                        String temp = i.replaceAll("\\d+[g|9]", "");//remove  "10g"
 
-                percentage_arraylist.add(Integer.parseInt(t1.substring(0, t1.length() - 1)));
-                temp=temp.replaceAll("\\d+%", "");
-                temp=temp.replaceAll("\\d","");
+                        temp = temp.replaceAll("\\d+mg", "");       //remove  "10mg"
 
-                name_arraylist.add(temp);
+                        temp=temp.replaceAll("m[g|c][g]*","");
 
-/*
-                if(s.contains("-|."))
-                    output.addAll(Arrays.asList(s.split("-|.")));
+                        String t1 = temp.replaceAll("[^(\\d+%)]", "");//only save "10%"
+                        if(t1.length()<1)
+                            continue;
+
+                        t1=t1.substring(0,t1.indexOf('%'));
+
+                        if(t1.matches("[0-9]+")&&t1.length()>0)
+                            percentage_arraylist.add(Integer.parseInt(t1));//remove % and store the percentage
+                        else
+                            continue;
+
+                        temp = temp.replaceAll("\\d+%", "");        //remove "10%"
+                        temp = temp.replaceAll("\\d", "");          //remove any other digits
+
+                        name_arraylist.add(temp);                   //store the string name
+                    }
+
+                }
                 else
-                    output.add(s);
-                */
+                {
 
-                //food=food+s+"\n";
+                    String temp = s.replaceAll("\\d+[g|9]", "");//remove  "10g"
+
+                    temp = temp.replaceAll("\\d+mg", "");       //remove  "10mg"
+
+                    temp=temp.replaceAll("m[g|c][g]*","");
+
+                    String t1 = temp.replaceAll("[^(\\d+%)]", "");//only save "10%"
 
 
-                //System.out.println("!!!!!!!!!!!!"+s.replaceAll("[^(\\d+%)]","")+"!!!!!!!!!!!");
+
+                    if(t1.length()<1)
+                        continue;
+
+                    t1=t1.substring(0,t1.indexOf('%'));
+
+                    if(t1.matches("[0-9]+")&&t1.length()>0)
+                        percentage_arraylist.add(Integer.parseInt(t1));//store the percentage
+                    else
+                        continue;
+
+                    temp = temp.replaceAll("\\d+%", "");        //remove "10%"
+                    temp = temp.replaceAll("\\d", "");          //remove any other digits
+
+                    name_arraylist.add(temp);                   //store the string name
+                }
 
             }
         }
