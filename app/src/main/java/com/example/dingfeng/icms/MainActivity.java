@@ -34,6 +34,10 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
     private Button camera;
     private Button gallery;
+
+    private Button deskew;
+    private Button binarization;
+
     private ImageView imageView;
     private static final int CAM_CODE=1111;
     private static final int PICK_CODE=1112;
@@ -50,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
     private int state;
 
 
-   /* static {
+    static {
         System.loadLibrary("opencv_java");
-    }*/
+    }
 
 
     @Override
@@ -62,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
 
         camera=(Button) findViewById(R.id.camera);
         gallery=(Button) findViewById(R.id.gallery);
+
+        deskew=(Button) findViewById(R.id.Deskew);
+        binarization=(Button) findViewById(R.id.binarization);
+
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
         processBtn.setEnabled(false);
@@ -92,6 +100,47 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        deskew.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        Utils.bitmapToMat(bitmapImage, _img);
+                        Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
+                        _img=binarization(_img);
+                        _img=computeDeskew(_img);
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+
+                        Toast.makeText(getApplicationContext(),"deskew",Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+
+        binarization.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        Utils.bitmapToMat(bitmapImage, _img);
+                        Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
+                        _img=binarization(_img);
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+                        Toast.makeText(getApplicationContext(),"binarization",Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+
+
         processBtn.setOnClickListener(
                 new View.OnClickListener(){
 
@@ -100,33 +149,9 @@ public class MainActivity extends AppCompatActivity {
 
                         state++;
                         switch(state){
-                            /*case 1:
-                                Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
-                                Utils.bitmapToMat(bitmapImage, _img);
-                                Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
-                                _img=binarization(_img);
-                                bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
-                                Utils.matToBitmap(_img, bitmapImage);
 
-                                imageView.setImageBitmap(bitmapImage);
-                                Toast.makeText(getApplicationContext(),"binarization",Toast.LENGTH_SHORT).show();
-
-                                break;
-
-                            case 2:
-                                _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
-                                Utils.bitmapToMat(bitmapImage, _img);
-                                Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
-                                //_img=binarization(_img);
-                                _img=computeDeskew(_img);
-                                bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
-                                Utils.matToBitmap(_img, bitmapImage);
-
-                                imageView.setImageBitmap(bitmapImage);
-
-                                Toast.makeText(getApplicationContext(),"deskew",Toast.LENGTH_SHORT).show();
-                                break;*/
                             default:
+                                state=0;
                                 Intent intent = new Intent(v.getContext(), ResultActivity.class);
 
                                 Bundle extras = new Bundle();
@@ -156,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
         if(resultCode==RESULT_OK && requestCode==PICK_CODE)
         {
             selectedImage=data.getData();
-            String path=getPath(selectedImage);
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             }catch(IOException e){
@@ -169,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
             selectedImage = data.getData();
-            bitmapImage=(Bitmap) data.getExtras().get("data");
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             }catch(IOException e){
@@ -194,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-/*
+
 
     private Mat computeDeskew(Mat _img)
     {
@@ -228,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-*/
+
 
 
 

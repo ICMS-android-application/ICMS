@@ -192,6 +192,9 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                         if(t1.length()<1)
                             continue;
 
+                        System.out.println("!!!!!!!!!!1"+t1.length()+"!!!!!!!!!"+t1.indexOf('%'));
+                        if(t1.indexOf("%")<0)
+                            continue;
                         t1=t1.substring(0,t1.indexOf('%'));
 
                         if(t1.matches("[0-9]+")&&t1.length()>0)
@@ -220,6 +223,10 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
 
 
                     if(t1.length()<1)
+                        continue;
+
+
+                    if(t1.indexOf("%")<0)
                         continue;
 
                     t1=t1.substring(0,t1.indexOf('%'));
