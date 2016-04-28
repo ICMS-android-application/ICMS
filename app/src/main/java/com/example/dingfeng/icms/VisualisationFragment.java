@@ -1,5 +1,6 @@
 package com.example.dingfeng.icms;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
@@ -106,7 +107,7 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
             ave_value /= index;
             DataPoint[] data = new DataPoint[index];
             for (int i = 0; i < index; i++) {
-                data[i] = new DataPoint(i, percentage[i]);
+                data[i] = new DataPoint(i+1, percentage[i]);
             }
 
             BarGraphSeries<DataPoint> series = new BarGraphSeries<DataPoint>(data);
@@ -121,29 +122,17 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
 
 
             graph.getViewport().setMinX(0);
-            graph.getViewport().setMaxX(index - 1);
+            graph.getViewport().setMaxX(index+1);
             graph.getViewport().setXAxisBoundsManual(true);
 
             series.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(getContext(), "Series: On Data Point clicked: " + name[(int) dataPoint.getX()], Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), name[(int) dataPoint.getX()-1], Toast.LENGTH_SHORT).show();
                 }
             });
 
 
-            LineGraphSeries<DataPoint> line_series = new LineGraphSeries<DataPoint>(
-                    new DataPoint[]
-                            {
-                                    new DataPoint(0, 100),
-                                    new DataPoint(1, 100),
-                                    new DataPoint(2, 100),
-                                    new DataPoint(3, 100),
-                                    new DataPoint(4, 100)
-                            }
-            );
-            graph.addSeries(line_series);
-            line_series.setColor(Color.RED);
 
 
             series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
@@ -153,7 +142,21 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            series.setSpacing(70);
+            graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                @Override
+                public String formatLabel(double value, boolean isValueX) {
+                    if (isValueX) {
+                        // show normal x values
+                        return super.formatLabel(value, isValueX);
+                    } else {
+                        // show currency for y values
+                        return super.formatLabel(value, isValueX) + "%";
+                    }
+                }
+            });
+
+
+            series.setSpacing(40);
 
             series.setDrawValuesOnTop(true);
             series.setValuesOnTopColor(Color.RED);
