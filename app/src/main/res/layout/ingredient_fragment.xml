@@ -51,6 +51,7 @@
             android:layout_height="50dp"
             android:orientation="horizontal"
             android:layout_gravity="bottom"
+            android:gravity="center_horizontal"
             android:background="@color/white">
 
             <ImageButton
@@ -59,14 +60,21 @@
                 android:background="@color/white"
                 android:scaleType="fitCenter"
                 android:id="@+id/textBtn"
-                android:src="@drawable/sheet" />
+                android:src="@drawable/text" />
             <ImageButton
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:scaleType="fitCenter"
-                android:id="@+id/highlightBtn"
-                android:src="@drawable/highlight" />
+                android:id="@+id/dairyBtn"
+                android:src="@drawable/dairy" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:scaleType="fitCenter"
+                android:id="@+id/shellfishBtn"
+                android:src="@drawable/seafood" />
             <ImageButton
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
@@ -74,6 +82,9 @@
                 android:scaleType="fitCenter"
                 android:id="@+id/vitaminBtn"
                 android:src="@drawable/vitamins" />
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
     <TextView

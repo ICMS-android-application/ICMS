@@ -25,7 +25,7 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     private android.graphics.Bitmap image;
 
     ImageButton textBtn;
-    ImageButton hlBtn;
+    ImageButton diaryBtn;
     ImageButton vitBtn;
     TextView textView;
 
@@ -41,6 +41,7 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
 
 
     ArrayList<Rect> list;
+
 
 
     @Override
@@ -60,6 +61,9 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        final String[] dairy = {"milk","cheese","casein", "caseinate", "butter", "cream", "curds","custards","dairy", "ghee", "half", "hydrolysates","lactate", "lactose", "pudding","sour cream","whey","yoghurt"};
+        final String[] shellfish = {"barnacle","crab","prawn","shrimp","krill","lobster","crawfish"};
 
         sourceText = ((ResultActivity)getActivity()).gethOCRText();
 
@@ -95,9 +99,9 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
         imageView2.getLayoutParams().width = imageWidth;*/
 
 
-        hlBtn = (ImageButton)getActivity().findViewById(R.id.highlightBtn);
+        diaryBtn = (ImageButton)getActivity().findViewById(R.id.dairyBtn);
 
-        hlBtn.setOnClickListener(new View.OnClickListener() {
+        diaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -106,6 +110,13 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 } else {
                     imageView2.setVisibility(View.INVISIBLE);
                 }
+
+                clearList();
+                for(int i = 0; i<dairy.length;i++){
+                    addRectsFromString(dairy[i], sourceText);
+                }
+                imageView2.setList(list);
+
 
             }
         });
@@ -184,7 +195,7 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
             i4 = source.indexOf(" ",i3+1);
             i5 = source.indexOf(" ",i4+1);
             i6 = source.indexOf(";",i5+1);
-            left = Integer.parseInt(source.substring(i2+1,i3));
+            left = Integer.parseInt(source.substring(i2 + 1, i3));
             top = Integer.parseInt(source.substring(i3+1,i4));
             right = Integer.parseInt(source.substring(i4+1,i5));
             bottom = Integer.parseInt(source.substring(i5+1,i6));
