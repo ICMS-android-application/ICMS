@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +17,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -38,6 +43,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class ResultActivity extends AppCompatActivity{
 
@@ -49,9 +55,19 @@ public class ResultActivity extends AppCompatActivity{
     Uri imageURI;
     Bitmap image;
 
+    int imageHeight;
+    int imageWidth;
+
+    float pushedDownHeight =0;
+
+    float scale = 0;
+
+    ArrayList<Rect> list;
+
     ImageButton textBtn;
     String recognizedText;
     String boxText;
+    String hOCRText;
     TessBaseAPI baseApi;
     String TARGET_BASE_PATH;
     @Override
@@ -63,16 +79,29 @@ public class ResultActivity extends AppCompatActivity{
         String uriMessage = intent.getStringExtra("uri");
         imageURI = Uri.parse(uriMessage);
 
-
+        list = new ArrayList<Rect>();
         //image = intent.getParcelableExtra("image");
 //        image = intent.getParcelableExtra("image");
+
+        Display display = getWindowManager().getDefaultDisplay();
+        android.graphics.Point size = new android.graphics.Point();
+        display.getSize(size);
+
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+
 
 
         try{
             image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
+            imageHeight = image.getHeight();
+            imageWidth = image.getWidth();
+            scale = screenWidth/imageWidth;
         }catch (IOException e){
 
         }
+
+        pushedDownHeight = (int)(screenHeight - dptopx(130))/2 - (imageHeight*scale)/2;
 
         int REQUEST_CODE = 1;
 
@@ -135,6 +164,7 @@ public class ResultActivity extends AppCompatActivity{
         recognizedText = baseApi.getUTF8Text();
 
         boxText = baseApi.getBoxText(0);
+        hOCRText = baseApi.getHOCRText(0).toLowerCase();
 
         try{
 
@@ -160,6 +190,17 @@ public class ResultActivity extends AppCompatActivity{
             fwBox.flush();
             fwBox.close();
 
+            File testHOCR = new File(datapath+ "HOCR.txt");
+            if(testHOCR.exists())
+            {
+                testHOCR.delete();
+            }
+            testHOCR = new File(datapath, "HOCR.txt");
+            FileWriter fwHOCR = new FileWriter(testHOCR);
+            fwHOCR.append(hOCRText);
+            fwHOCR.flush();
+            fwHOCR.close();
+
         }catch(IOException e){
 
         }
@@ -167,6 +208,25 @@ public class ResultActivity extends AppCompatActivity{
 
         baseApi.end();
 
+    }
+
+
+    public float dptopx(int dp){
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,r.getDisplayMetrics());
+        return px;
+    }
+
+    public float getScale(){
+        return scale;
+    }
+
+    public float getPushedDownHeight() {
+        return pushedDownHeight;
+    }
+
+    public String gethOCRText() {
+        return hOCRText;
     }
 
     public String getBoxText(){

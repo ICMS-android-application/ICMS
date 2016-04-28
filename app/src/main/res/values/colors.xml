@@ -4,5 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="tabColor">#3F51B5</color>
-    <color name="translucent">#DDFFFFFF</color>
+    <color name="translucent">#CCFFFFFF</color>
+    <color name="semiYellow">#CCFFFF00</color>
+    <color name="semiCyan">#CC00FFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>
