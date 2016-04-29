@@ -70,6 +70,9 @@ public class ResultActivity extends AppCompatActivity{
     String hOCRText;
     TessBaseAPI baseApi;
     String TARGET_BASE_PATH;
+
+    String imageOrientation="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,18 +93,43 @@ public class ResultActivity extends AppCompatActivity{
         int screenWidth = size.x;
         int screenHeight = size.y;
 
+        Log.d("icms", "Screen Width = "+screenWidth+", height = "+screenHeight);
 
 
         try{
             image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
             imageHeight = image.getHeight();
             imageWidth = image.getWidth();
-            scale = screenWidth/imageWidth;
+
+            int innerScreenHeight = (int)(screenHeight-dptopx(130));
+
+
+            if(imageHeight>imageWidth){
+                imageOrientation = "portrait";
+                if(imageHeight>= innerScreenHeight){
+                    scale = screenHeight/(float)imageHeight;
+                }
+            }else if(imageHeight<imageWidth){
+                imageOrientation = "landscape";
+                scale = screenWidth/(float)imageWidth;
+            }else{
+                imageOrientation = "square";
+                scale = screenWidth/(float)imageWidth;
+            }
+
         }catch (IOException e){
 
         }
 
-        pushedDownHeight = (int)(screenHeight - dptopx(130))/2 - (imageHeight*scale)/2;
+
+        Log.d("icms", "Original Image Width = "+imageWidth+", height = "+imageHeight);
+        Log.d("icms", "Scale = "+scale);
+
+
+        pushedDownHeight = (int)(screenHeight - dptopx(115))/2 - (imageHeight*scale)/2;
+
+        Log.d("icms", "pusheddownheight = "+pushedDownHeight);
+
 
         int REQUEST_CODE = 1;
 
@@ -166,6 +194,8 @@ public class ResultActivity extends AppCompatActivity{
         boxText = baseApi.getBoxText(0);
         hOCRText = baseApi.getHOCRText(0).toLowerCase();
 
+//        hOCRText = contextualCorrection(hOCRText);
+
         try{
 
             File testUTF8 = new File(datapath+ "testUTF.txt");
@@ -209,6 +239,10 @@ public class ResultActivity extends AppCompatActivity{
         baseApi.end();
 
     }
+
+   /* public String contextualCorrection(String s){
+
+    }*/
 
 
     public float dptopx(int dp){

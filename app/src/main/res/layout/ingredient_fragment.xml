@@ -67,14 +67,35 @@
                 android:background="@color/white"
                 android:scaleType="fitCenter"
                 android:id="@+id/dairyBtn"
-                android:src="@drawable/dairy" />
+                android:src="@drawable/milk" />
             <ImageButton
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:scaleType="fitCenter"
                 android:id="@+id/shellfishBtn"
-                android:src="@drawable/seafood" />
+                android:src="@drawable/shellfish" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:scaleType="fitCenter"
+                android:id="@+id/soyaBtn"
+                android:src="@drawable/soya" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:scaleType="fitCenter"
+                android:id="@+id/treenutBtn"
+                android:src="@drawable/treenuts" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:scaleType="fitCenter"
+                android:id="@+id/peanutBtn"
+                android:src="@drawable/peanuts" />
             <ImageButton
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
@@ -82,9 +103,6 @@
                 android:scaleType="fitCenter"
                 android:id="@+id/vitaminBtn"
                 android:src="@drawable/vitamins" />
-            <TextView
-                android:layout_width="200dp"
-                android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
     <TextView

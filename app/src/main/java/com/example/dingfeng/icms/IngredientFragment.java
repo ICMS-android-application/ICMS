@@ -6,6 +6,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -27,6 +29,10 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     ImageButton textBtn;
     ImageButton diaryBtn;
     ImageButton vitBtn;
+    ImageButton peanutBtn;
+    ImageButton soyaBtn;
+    ImageButton shellfishBtn;
+    ImageButton treenutBtn;
     TextView textView;
 
     RelativeLayout relativeLayout;
@@ -62,8 +68,11 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final String[] dairy = {"milk","cheese","casein", "caseinate", "butter", "cream", "curds","custards","dairy", "ghee", "half", "hydrolysates","lactate", "lactose", "pudding","sour cream","whey","yoghurt"};
+        final String[] dairy = {"milk","cheese","casein", "caseinate", "butter", "cream", "curds","custards","dairy", "ghee", "half", "hydrolysates","lactate", "lactose", "pudding","sour cream","whey","yogurt","quark","nougat","nisin preparation","lactulose"};
         final String[] shellfish = {"barnacle","crab","prawn","shrimp","krill","lobster","crawfish"};
+        final String[] peanut = {"arachc oil","arachis","peanut", "goober", "ground nuts", "mandelonas", "nut meat", "beer nuts"};
+        final String[] soya = {"bean curd","edamame","miso","hydrolyzed soy protein","natto","okara","shoyu","soy","soya","supro","tamari","tempeh","teriyaki","tofu","yakidofu","yuba"};
+        final String[] treenut = {"almond","beechnut","brazil nut","bush nut","butternut","cashew","chestnut","coconut","filbert","ginko nut","hazelnut","hickory nut","lichee nut","macadamia nut","nangai nut","pecan","pine nut","pistachio","shea nut","walnut","nougat","Lychee nut"};
 
         sourceText = ((ResultActivity)getActivity()).gethOCRText();
 
@@ -112,11 +121,92 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 }
 
                 clearList();
-                for(int i = 0; i<dairy.length;i++){
+                for (int i = 0; i < dairy.length; i++) {
                     addRectsFromString(dairy[i], sourceText);
                 }
                 imageView2.setList(list);
+                if (list.isEmpty()) {
+                    Toast.makeText(getActivity(), "There is no dairy products found",
+                            Toast.LENGTH_SHORT).show();
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
 
+            }
+        });
+
+        treenutBtn = (ImageButton)getActivity().findViewById(R.id.treenutBtn);
+
+        treenutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (imageView2.getVisibility() == View.INVISIBLE) {
+                    imageView2.setVisibility(View.VISIBLE);
+                } else {
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+                clearList();
+                for (int i = 0; i < treenut.length; i++) {
+                    addRectsFromString(treenut[i], sourceText);
+                }
+                imageView2.setList(list);
+                if(list.isEmpty()){
+                    Toast.makeText(getActivity(), "There is no tree nut products found",
+                            Toast.LENGTH_SHORT).show();
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
+
+        soyaBtn = (ImageButton)getActivity().findViewById(R.id.soyaBtn);
+
+        soyaBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (imageView2.getVisibility() == View.INVISIBLE) {
+                    imageView2.setVisibility(View.VISIBLE);
+                } else {
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+                clearList();
+                for (int i = 0; i < soya.length; i++) {
+                    addRectsFromString(soya[i], sourceText);
+                }
+                imageView2.setList(list);
+                if(list.isEmpty()){
+                    Toast.makeText(getActivity(), "There is no soya products found",
+                            Toast.LENGTH_SHORT).show();
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
+        shellfishBtn = (ImageButton)getActivity().findViewById(R.id.shellfishBtn);
+
+        shellfishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (imageView2.getVisibility() == View.INVISIBLE) {
+                    imageView2.setVisibility(View.VISIBLE);
+                } else {
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+                clearList();
+                for (int i = 0; i < shellfish.length; i++) {
+                    addRectsFromString(shellfish[i], sourceText);
+                }
+                imageView2.setList(list);
+                if(list.isEmpty()){
+                    Toast.makeText(getActivity(), "There is no shellfish products found",
+                            Toast.LENGTH_SHORT).show();
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
 
             }
         });
@@ -134,7 +224,37 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                     addRectsFromString("vitamin",sourceText);
 
                     imageView2.setList(list);
+                    if(list.isEmpty()){
+                        Toast.makeText(getActivity(), "There is no vitamins found",
+                                Toast.LENGTH_SHORT).show();
+                        imageView2.setVisibility(View.INVISIBLE);
+                    }
 
+                } else {
+                    imageView2.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
+        peanutBtn = (ImageButton)getActivity().findViewById(R.id.peanutBtn);
+
+        peanutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (imageView2.getVisibility() == View.INVISIBLE) {
+                    imageView2.setVisibility(View.VISIBLE);
+
+                    clearList();
+                    for (int i = 0; i < peanut.length; i++) {
+                        addRectsFromString(peanut[i], sourceText);
+                    }
+                    imageView2.setList(list);
+                    if(list.isEmpty()){
+                        Toast.makeText(getActivity(), "There is no peanut products found",
+                                Toast.LENGTH_SHORT).show();
+                        imageView2.setVisibility(View.INVISIBLE);
+                    }
 
                 } else {
                     imageView2.setVisibility(View.INVISIBLE);
@@ -181,14 +301,14 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     }
 
     public void addRectsFromString(String s, String source){
-
+//        Log.d("icms","Searching for String "+s);
         int i = source.indexOf(s);
         int tempIndex;
         int i2,i3,i4,i5,i6;
         int left, top, right, bottom;
 
         while (i>=0){
-            tempIndex = i - 60;
+            tempIndex = i - 100;
             i2 = source.indexOf("bbox",tempIndex);
             i2 = i2 + 4;
             i3 = source.indexOf(" ",i2+1);
@@ -203,6 +323,7 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
             list.add(new Rect(left,top,right,bottom));
             i = source.indexOf(s, i + 1);
 
+            Log.d("icms","Found "+s+" with Rect("+left+", "+top+", "+right+", "+bottom+")");
         }
     }
 

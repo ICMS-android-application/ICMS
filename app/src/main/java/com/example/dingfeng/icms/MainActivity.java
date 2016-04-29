@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         camera=(Button) findViewById(R.id.camera);
         gallery=(Button) findViewById(R.id.gallery);
-
+/*
         deskew=(Button) findViewById(R.id.Deskew);
-        binarization=(Button) findViewById(R.id.binarization);
+        binarization=(Button) findViewById(R.id.binarization);*/
 
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent cam_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(cam_intent,CAM_CODE);
+                        startActivityForResult(cam_intent, CAM_CODE);
                     }
                 }
         );
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        deskew.setOnClickListener(
+        /*deskew.setOnClickListener(
                 new View.OnClickListener()
                 {
                     public void onClick(View v)
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-
+*/
 
         processBtn.setOnClickListener(
                 new View.OnClickListener(){
@@ -180,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         resultData = data;
         if(resultCode==RESULT_OK && requestCode==PICK_CODE)
         {
+            Log.d("icms","------------New Gallery Pic-------------");
             selectedImage=data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
@@ -192,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
         {
+
+            Log.d("icms","--------New Cam Pic---------------");
             selectedImage = data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
