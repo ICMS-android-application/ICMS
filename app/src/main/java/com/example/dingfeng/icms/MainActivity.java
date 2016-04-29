@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button deskew;
     private Button binarization;
+    private ImageButton rotate;
 
     private ImageView imageView;
     private static final int CAM_CODE=1111;
@@ -67,9 +69,13 @@ public class MainActivity extends AppCompatActivity {
 
         camera=(Button) findViewById(R.id.camera);
         gallery=(Button) findViewById(R.id.gallery);
-/*
+
+        rotate=(ImageButton) findViewById(R.id.rotate);
+
         deskew=(Button) findViewById(R.id.Deskew);
-        binarization=(Button) findViewById(R.id.binarization);*/
+        deskew.setVisibility(View.INVISIBLE);
+        binarization=(Button) findViewById(R.id.Binarization);
+        binarization.setVisibility(View.INVISIBLE);
 
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
@@ -101,15 +107,16 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        /*deskew.setOnClickListener(
+        deskew.setOnClickListener(
                 new View.OnClickListener()
                 {
                     public void onClick(View v)
                     {
-                        Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        //Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        Mat _img=new Mat();
                         Utils.bitmapToMat(bitmapImage, _img);
                         Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
-                        _img=binarization(_img);
+                        //_img=binarization(_img);
                         _img=computeDeskew(_img);
                         bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
                         Utils.matToBitmap(_img, bitmapImage);
@@ -127,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
                 {
                     public void onClick(View v)
                     {
-                        Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        //Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        Mat _img=new Mat();
                         Utils.bitmapToMat(bitmapImage, _img);
                         Imgproc.cvtColor(_img, _img, Imgproc.COLOR_RGB2GRAY);
                         _img=binarization(_img);
@@ -140,7 +148,25 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-*/
+        rotate.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        //Mat _img=new Mat(bitmapImage.getWidth(), bitmapImage.getHeight(), CvType.CV_8UC1);
+                        Mat _img=new Mat();
+                        Utils.bitmapToMat(bitmapImage, _img);
+                        _img=rotation(_img);
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+                        Toast.makeText(getApplicationContext(),"rotate 90 degree",Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+
 
         processBtn.setOnClickListener(
                 new View.OnClickListener(){
@@ -190,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
             }
             imageView.setImageBitmap(bitmapImage);
             processBtn.setEnabled(true);
+            binarization.setVisibility(View.VISIBLE);
+            deskew.setVisibility(View.VISIBLE);
 
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
@@ -205,8 +233,10 @@ public class MainActivity extends AppCompatActivity {
             imageView.setImageBitmap(bitmapImage);
 
 
-//            imageView.setRotation(90);
             processBtn.setEnabled(true);
+
+            binarization.setVisibility(View.VISIBLE);
+            deskew.setVisibility(View.VISIBLE);
         }
 
     }
@@ -239,11 +269,11 @@ public class MainActivity extends AppCompatActivity {
         angle/=lines.rows();
         angle=angle / Math.PI * 180.0;
 
-        System.out.println("!!!!!!!!!!!!!!!"+angle+"!!!!!!!!!!!!1");
+        System.out.println("!!!!!!!!!!!!!!!" + angle + "!!!!!!!!!!!!1");
 
 
-        Point center=new Point(size.width/2,size.height/2);
-        Mat rotImage=Imgproc.getRotationMatrix2D(center,angle,1.0);//100% scale
+        Point center=new Point(size.width/2, size.height/2);
+        Mat rotImage=Imgproc.getRotationMatrix2D(center, angle, 1.0);//100% scale
         Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_CUBIC );
         return _img;
     }
@@ -253,6 +283,16 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.adaptiveThreshold(_img, _img, 255.0, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2.0);
         return _img;
     }
+
+    private Mat rotation(Mat _img)
+    {
+        Core.transpose(_img, _img);
+        Core.flip(_img, _img, 1);
+        return _img;
+    }
+
+
+
 
 
 
