@@ -101,7 +101,7 @@ public class ResultActivity extends AppCompatActivity{
             imageHeight = image.getHeight();
             imageWidth = image.getWidth();
 
-            int innerScreenHeight = (int)(screenHeight-dptopx(130));
+            int innerScreenHeight = (int)(screenHeight-dptopx(120));
 
 
             if(imageHeight>imageWidth){
@@ -129,7 +129,7 @@ public class ResultActivity extends AppCompatActivity{
         Log.d("icms", "Scale = "+scale);
 
 
-        pushedDownHeight = (int)(screenHeight - dptopx(115))/2 - (imageHeight*scale)/2;
+        pushedDownHeight = (int)(screenHeight - dptopx(120))/2 - (imageHeight*scale)/2;
 
         Log.d("icms", "pusheddownheight = "+pushedDownHeight);
 

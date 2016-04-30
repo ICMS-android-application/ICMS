@@ -1,32 +1,22 @@
 package com.example.dingfeng.icms;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -41,17 +31,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    private Button camera;
-    private Button gallery;
+    private ImageButton camera;
+    private ImageButton gallery;
 
-    private Button deskew;
-    private Button binarization;
+    private ImageButton deskew;
+    private ImageButton binarization;
 
     private ImageButton rotate;
     private ImageButton expand;
     private ImageButton shrink;
+    float currentScale;
 
-    private Button medium_filter;
+    private ImageButton medium_filter;
 
     private ImageView imageView;
     private static final int CAM_CODE=1111;
@@ -79,24 +70,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        camera=(Button) findViewById(R.id.camera);
-        gallery=(Button) findViewById(R.id.gallery);
+        camera=(ImageButton) findViewById(R.id.camera);
+        gallery=(ImageButton) findViewById(R.id.gallery);
 
         rotate=(ImageButton) findViewById(R.id.rotate);
 
-
+        currentScale = 1;
 
         expand=(ImageButton) findViewById(R.id.expand);
         shrink=(ImageButton) findViewById(R.id.shrink);
 
-        deskew=(Button) findViewById(R.id.Deskew);
+        deskew=(ImageButton) findViewById(R.id.Deskew);
         deskew.setVisibility(View.INVISIBLE);
-        binarization=(Button) findViewById(R.id.Binarization);
+        binarization=(ImageButton) findViewById(R.id.Binarization);
         binarization.setVisibility(View.INVISIBLE);
-        medium_filter=(Button) findViewById(R.id.medium_filter);
+        medium_filter=(ImageButton) findViewById(R.id.medium_filter);
         medium_filter.setVisibility(View.INVISIBLE);
         expand.setVisibility(View.INVISIBLE);
         shrink.setVisibility(View.INVISIBLE);
+        rotate.setVisibility(View.INVISIBLE);
 
 
         imageView=(ImageView) findViewById(R.id.imageView);
@@ -216,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                         Mat _img=new Mat();
                         Utils.bitmapToMat(bitmapImage, _img);
 
-                        Imgproc.resize(_img,_img,new Size(_img.size().width*2,_img.size().height*2));
+                        Imgproc.resize(_img, _img, new Size(_img.size().width * 2, _img.size().height * 2));
 
                         System.out.println("!!!!!!!!!!!!!!!!!!!expand" + _img.size());
 
@@ -224,7 +216,9 @@ public class MainActivity extends AppCompatActivity {
                         Utils.matToBitmap(_img, bitmapImage);
 
                         imageView.setImageBitmap(bitmapImage);
-                        Toast.makeText(getApplicationContext(),"expand",Toast.LENGTH_SHORT).show();
+
+                        currentScale *=2;
+                        Toast.makeText(getApplicationContext(),"expanding image by 2x. Current Scale = "+currentScale,Toast.LENGTH_SHORT).show();
 
 
 
@@ -240,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                         Mat _img=new Mat();
                         Utils.bitmapToMat(bitmapImage, _img);
 
-                        Imgproc.resize(_img,_img,new Size(_img.size().width*0.5,_img.size().height*0.5));
+                        Imgproc.resize(_img, _img, new Size(_img.size().width * 0.5, _img.size().height * 0.5));
 
                         System.out.println("!!!!!!!!!!!!!!!!!!!shrink" + _img.size());
 
@@ -248,7 +242,8 @@ public class MainActivity extends AppCompatActivity {
                         Utils.matToBitmap(_img, bitmapImage);
 
                         imageView.setImageBitmap(bitmapImage);
-                        Toast.makeText(getApplicationContext(),"expand",Toast.LENGTH_SHORT).show();
+                        currentScale *= 0.5;
+                        Toast.makeText(getApplicationContext(),"shrink by 2x. Current Scale = "+currentScale,Toast.LENGTH_SHORT).show();
 
 
 
@@ -308,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
             medium_filter.setVisibility(View.VISIBLE);
             expand.setVisibility(View.VISIBLE);
             shrink.setVisibility(View.VISIBLE);
+            rotate.setVisibility(View.VISIBLE);
 
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
@@ -328,6 +324,12 @@ public class MainActivity extends AppCompatActivity {
             binarization.setVisibility(View.VISIBLE);
             deskew.setVisibility(View.VISIBLE);
             medium_filter.setVisibility(View.VISIBLE);
+
+            //dingfeng did u purposely leave this visibilities out?
+            medium_filter.setVisibility(View.VISIBLE);
+            expand.setVisibility(View.VISIBLE);
+            shrink.setVisibility(View.VISIBLE);
+            rotate.setVisibility(View.VISIBLE);
         }
 
     }
