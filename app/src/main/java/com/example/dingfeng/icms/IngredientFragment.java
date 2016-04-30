@@ -19,6 +19,10 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class IngredientFragment extends android.support.v4.app.Fragment{
 
@@ -43,7 +47,12 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     float imageX;
     float imageY;
 
+    //for post processing
+
     String sourceText;
+    String recognizedText;
+
+    Set<String> allIngredients;
 
 
     ArrayList<Rect> list;
@@ -68,13 +77,29 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final String[] dairy = {"milk","cheese","casein", "caseinate", "butter", "cream", "curds","custards","dairy", "ghee", "half", "hydrolysates","lactate", "lactose", "pudding","sour cream","whey","yogurt","quark","nougat","nisin preparation","lactulose"};
-        final String[] shellfish = {"barnacle","crab","prawn","shrimp","krill","lobster","crawfish"};
-        final String[] peanut = {"arachc oil","arachis","peanut", "goober", "ground nuts", "mandelonas", "nut meat", "beer nuts"};
-        final String[] soya = {"bean curd","edamame","miso","hydrolyzed soy protein","natto","okara","shoyu","soy","soya","supro","tamari","tempeh","teriyaki","tofu","yakidofu","yuba"};
-        final String[] treenut = {"almond","beechnut","brazil nut","bush nut","butternut","cashew","chestnut","coconut","filbert","ginko nut","hazelnut","hickory nut","lichee nut","macadamia nut","nangai nut","pecan","pine nut","pistachio","shea nut","walnut","nougat","Lychee nut"};
+        final List<String> dairy = Arrays.asList("milk", "cheese", "casein", "caseinate", "butter", "cream", "curds", "custards", "dairy", "ghee", "half", "hydrolysates", "lactate", "lactose", "pudding", "sour cream", "whey", "yogurt", "quark", "nougat", "nisin preparation", "lactulose");
+        final List<String> shellfish = Arrays.asList("barnacle","crab","prawn","shrimp","krill","lobster","crawfish");
+        final List<String> peanut = Arrays.asList("arachc oil","arachis","peanut", "goober", "ground nuts", "mandelonas", "nut meat", "beer nuts");
+        final List<String> soya = Arrays.asList("bean curd","edamame","miso","hydrolyzed soy protein","natto","okara","shoyu","soy","soya","supro","tamari","tempeh","teriyaki","tofu","yakidofu","yuba");
+        final List<String> treenut = Arrays.asList("almond","beechnut","brazil nut","bush nut","butternut","cashew","chestnut","coconut","filbert","ginko nut","hazelnut","hickory nut","lichee nut","macadamia nut","nangai nut","pecan","pine nut","pistachio","shea nut","walnut","nougat","Lychee nut");
+
+        final List<String> misc = Arrays.asList("contain", "contains","ingredient", "ingredients", "may","calcium","iron","niacin","thiamin","agents");
+
+        allIngredients = new HashSet<>();
+
+        allIngredients.addAll(dairy);
+        allIngredients.addAll(shellfish);
+        allIngredients.addAll(peanut);
+        allIngredients.addAll(soya);
+        allIngredients.addAll(treenut);
+
+
+
 
         sourceText = ((ResultActivity)getActivity()).gethOCRText();
+        recognizedText = ((ResultActivity)getActivity()).getRecognizedText();
+
+//        sourceText = postProcessText(sourceText, recognizedText, allIngredients);
 
         imageView = (ImageView)getActivity().findViewById(R.id.result_imageview);
 /*        image = ((ResultActivity)getActivity()).getImage();
@@ -121,8 +146,8 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 }
 
                 clearList();
-                for (int i = 0; i < dairy.length; i++) {
-                    addRectsFromString(dairy[i], sourceText);
+                for (int i = 0; i < dairy.size(); i++) {
+                    addRectsFromString(dairy.get(i), sourceText);
                 }
                 imageView2.setList(list);
                 if (list.isEmpty()) {
@@ -147,8 +172,8 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 }
 
                 clearList();
-                for (int i = 0; i < treenut.length; i++) {
-                    addRectsFromString(treenut[i], sourceText);
+                for (int i = 0; i < treenut.size(); i++) {
+                    addRectsFromString(treenut.get(i), sourceText);
                 }
                 imageView2.setList(list);
                 if(list.isEmpty()){
@@ -173,8 +198,8 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 }
 
                 clearList();
-                for (int i = 0; i < soya.length; i++) {
-                    addRectsFromString(soya[i], sourceText);
+                for (int i = 0; i < soya.size(); i++) {
+                    addRectsFromString(soya.get(i), sourceText);
                 }
                 imageView2.setList(list);
                 if(list.isEmpty()){
@@ -198,8 +223,8 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                 }
 
                 clearList();
-                for (int i = 0; i < shellfish.length; i++) {
-                    addRectsFromString(shellfish[i], sourceText);
+                for (int i = 0; i < shellfish.size(); i++) {
+                    addRectsFromString(shellfish.get(i), sourceText);
                 }
                 imageView2.setList(list);
                 if(list.isEmpty()){
@@ -246,8 +271,8 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
                     imageView2.setVisibility(View.VISIBLE);
 
                     clearList();
-                    for (int i = 0; i < peanut.length; i++) {
-                        addRectsFromString(peanut[i], sourceText);
+                    for (int i = 0; i < peanut.size(); i++) {
+                        addRectsFromString(peanut.get(i), sourceText);
                     }
                     imageView2.setList(list);
                     if(list.isEmpty()){
@@ -289,6 +314,12 @@ public class IngredientFragment extends android.support.v4.app.Fragment{
 
 
 
+    }
+
+    public String postProcessText(String hocr, String recognizedText, Set<String> words){
+
+        String result =hocr;
+        return result;
     }
 
 
