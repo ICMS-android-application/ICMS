@@ -269,6 +269,7 @@ public class ResultActivity extends AppCompatActivity{
     public String getBoxText(){
         return boxText;
     }
+    //save missing files from asset to phone storage under /tesseract/
 
     private void copyFileOrDir(String path) {
         AssetManager assetManager = this.getAssets();
