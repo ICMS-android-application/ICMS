@@ -18,7 +18,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Binarization"
+            android:text="Bi"
             android:id="@+id/Binarization"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true" />
@@ -30,6 +30,33 @@
             android:id="@+id/Deskew"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="filter"
+            android:id="@+id/medium_filter"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/Deskew" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/expand"
+            android:scaleType="fitCenter"
+            android:src="@drawable/expand"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/Binarization" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/shrink"
+            android:scaleType="fitCenter"
+            android:src="@drawable/shrink"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/medium_filter" />
+
     </RelativeLayout>
 
     <ImageView

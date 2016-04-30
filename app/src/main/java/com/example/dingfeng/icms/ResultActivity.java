@@ -109,6 +109,9 @@ public class ResultActivity extends AppCompatActivity{
                 if(imageHeight>= innerScreenHeight){
                     scale = screenHeight/(float)imageHeight;
                 }
+                else{
+                    scale = screenWidth/(float)imageWidth;
+                }
             }else if(imageHeight<imageWidth){
                 imageOrientation = "landscape";
                 scale = screenWidth/(float)imageWidth;

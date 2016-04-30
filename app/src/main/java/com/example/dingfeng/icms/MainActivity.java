@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,10 +29,16 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private Button camera;
@@ -39,7 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
     private Button deskew;
     private Button binarization;
+
     private ImageButton rotate;
+    private ImageButton expand;
+    private ImageButton shrink;
+
+    private Button medium_filter;
 
     private ImageView imageView;
     private static final int CAM_CODE=1111;
@@ -72,10 +84,20 @@ public class MainActivity extends AppCompatActivity {
 
         rotate=(ImageButton) findViewById(R.id.rotate);
 
+
+
+        expand=(ImageButton) findViewById(R.id.expand);
+        shrink=(ImageButton) findViewById(R.id.shrink);
+
         deskew=(Button) findViewById(R.id.Deskew);
         deskew.setVisibility(View.INVISIBLE);
         binarization=(Button) findViewById(R.id.Binarization);
         binarization.setVisibility(View.INVISIBLE);
+        medium_filter=(Button) findViewById(R.id.medium_filter);
+        medium_filter.setVisibility(View.INVISIBLE);
+        expand.setVisibility(View.INVISIBLE);
+        shrink.setVisibility(View.INVISIBLE);
+
 
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
@@ -167,31 +189,96 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
+        medium_filter.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat();
+                        Utils.bitmapToMat(bitmapImage, _img);
+                        Imgproc.medianBlur(_img,_img,3);
+
+
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+                        Toast.makeText(getApplicationContext(),"medium filter",Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+        );
+        expand.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat();
+                        Utils.bitmapToMat(bitmapImage, _img);
+
+                        Imgproc.resize(_img,_img,new Size(_img.size().width*2,_img.size().height*2));
+
+                        System.out.println("!!!!!!!!!!!!!!!!!!!expand" + _img.size());
+
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+                        Toast.makeText(getApplicationContext(),"expand",Toast.LENGTH_SHORT).show();
+
+
+
+                    }
+                }
+        );
+
+        shrink.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat();
+                        Utils.bitmapToMat(bitmapImage, _img);
+
+                        Imgproc.resize(_img,_img,new Size(_img.size().width*0.5,_img.size().height*0.5));
+
+                        System.out.println("!!!!!!!!!!!!!!!!!!!shrink" + _img.size());
+
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+                        imageView.setImageBitmap(bitmapImage);
+                        Toast.makeText(getApplicationContext(),"expand",Toast.LENGTH_SHORT).show();
+
+
+
+                    }
+                }
+        );
+
+
+
 
         processBtn.setOnClickListener(
-                new View.OnClickListener(){
+                new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
 
-                        state++;
-                        switch(state){
 
-                            default:
-                                state=0;
-                                Intent intent = new Intent(v.getContext(), ResultActivity.class);
+                        Intent intent = new Intent(v.getContext(), ResultActivity.class);
 
-                                Bundle extras = new Bundle();
-                                extras.putString("uri", selectedImage.toString());
-                                //extras.putParcelable("image", bitmapImage);
-//                                extras.putParcelable("image", bitmapImage);
+                        Bundle extras = new Bundle();
 
-                                intent.putExtras(extras);
-                                startActivity(intent);
-                                break;
-                        }
+                        Uri image_uri = storeImage(bitmapImage);
 
+                        if (image_uri == null)
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!null image uri");
+                        else
+                            extras.putString("uri", image_uri.toString());
 
+                        intent.putExtras(extras);
+                        startActivity(intent);
 
                     }
                 }
@@ -218,6 +305,9 @@ public class MainActivity extends AppCompatActivity {
             processBtn.setEnabled(true);
             binarization.setVisibility(View.VISIBLE);
             deskew.setVisibility(View.VISIBLE);
+            medium_filter.setVisibility(View.VISIBLE);
+            expand.setVisibility(View.VISIBLE);
+            shrink.setVisibility(View.VISIBLE);
 
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
@@ -237,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
 
             binarization.setVisibility(View.VISIBLE);
             deskew.setVisibility(View.VISIBLE);
+            medium_filter.setVisibility(View.VISIBLE);
         }
 
     }
@@ -269,12 +360,10 @@ public class MainActivity extends AppCompatActivity {
         angle/=lines.rows();
         angle=angle / Math.PI * 180.0;
 
-        System.out.println("!!!!!!!!!!!!!!!" + angle + "!!!!!!!!!!!!1");
-
-
         Point center=new Point(size.width/2, size.height/2);
         Mat rotImage=Imgproc.getRotationMatrix2D(center, angle, 1.0);//100% scale
-        Imgproc.warpAffine(_img,_img,rotImage,size,Imgproc.INTER_CUBIC );
+        Mat after_img=new Mat();
+        Imgproc.warpAffine(_img,after_img,rotImage,after_img.size(),Imgproc.INTER_CUBIC,Imgproc.BORDER_TRANSPARENT, new Scalar(0));
         return _img;
     }
 
@@ -289,6 +378,51 @@ public class MainActivity extends AppCompatActivity {
         Core.transpose(_img, _img);
         Core.flip(_img, _img, 1);
         return _img;
+    }
+
+
+    private Uri storeImage(Bitmap image) {
+        File pictureFile = getOutputMediaFile();
+        if (pictureFile == null) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!"+"Error creating media file, check storage permissions: ");
+            return null;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            image.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!" + e.getMessage());
+        }
+
+
+        return Uri.fromFile(pictureFile);
+    }
+
+
+    private  File getOutputMediaFile(){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/tesseract/");
+
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        File mediaFile;
+        String mImageName="MI_"+ timeStamp +".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        return mediaFile;
     }
 
 
