@@ -25,6 +25,8 @@ import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VisualisationFragment extends android.support.v4.app.Fragment {
 
@@ -159,7 +161,7 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
             series.setSpacing(40);
 
             series.setDrawValuesOnTop(true);
-            series.setValuesOnTopColor(Color.RED);
+            series.setValuesOnTopColor(Color.BLACK);
 
         }
         else
@@ -177,40 +179,113 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
         for(String s : lists) {
             if (s.contains("%")&&s.replaceAll("\\D","").length()!=0)
             {
-                if(s.contains(".")||s.contains("-")) {
-                    String[] output = s.split("[.-]");
+                if(s.contains(".")||s.contains("-")||s.contains("~")) {
+                    String[] output = s.split("[.-~]");
 
                     for(String i:output)
                     {
-                        String temp = i.replaceAll("\\d+[g|9]", "");//remove  "10g"
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!"+i);
+                        String pattern = "\\d+(\\.\\d+)?%";
+                        // Create a Pattern object
+                        Pattern r = Pattern.compile(pattern);
+                        // Now create matcher object.
+                        Matcher m = r.matcher(i);
+                        if (m.find( ))
+                        {
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.group() );
+                            String percetage_number=m.group();
+                            if(percetage_number.length()<1||!percetage_number.contains("%"))
+                                continue;
+                            else
+                                percetage_number=percetage_number.substring(0,percetage_number.indexOf('%'));
 
-                        temp = temp.replaceAll("\\d+mg", "");       //remove  "10mg"
+                            if(percetage_number.matches("[0-9]+")&&percetage_number.length()>0)
+                                percentage_arraylist.add(Integer.parseInt(percetage_number));//remove % and store the percentage
+                            else
+                                continue;
 
-                        temp=temp.replaceAll("m[g|c][g]*","");
+                            String name=m.replaceAll("");
+                            name=name.replaceAll("\\d+[g|9]", "");
+                            name=name.replaceAll("\\d+mg", "");
+                            name=name.replaceAll("m[g|c][g]*","");
+                            name = name.replaceAll("\\d", "");
+                            name_arraylist.add(name);
+                        }
 
-                        String t1 = temp.replaceAll("[^(\\d+%)]", "");//only save "10%"
-                        if(t1.length()<1)
-                            continue;
+                                        /*
+                                        String temp = i.replaceAll("\\d+[g|9]", "");//remove  "10g"
 
-                        System.out.println("!!!!!!!!!!1"+t1.length()+"!!!!!!!!!"+t1.indexOf('%'));
-                        if(t1.indexOf("%")<0)
-                            continue;
-                        t1=t1.substring(0,t1.indexOf('%'));
+                                        temp = temp.replaceAll("\\d+mg", "");       //remove  "10mg"
 
-                        if(t1.matches("[0-9]+")&&t1.length()>0)
-                            percentage_arraylist.add(Integer.parseInt(t1));//remove % and store the percentage
-                        else
-                            continue;
+                                        temp=temp.replaceAll("m[g|c][g]*","");
 
-                        temp = temp.replaceAll("\\d+%", "");        //remove "10%"
-                        temp = temp.replaceAll("\\d", "");          //remove any other digits
+                                        String t1 = temp.replaceAll("[^(\\d+%)]", "");//only save "10%"
+                                        if(t1.length()<1)
+                                            continue;
 
-                        name_arraylist.add(temp);                   //store the string name
+                                        System.out.println("!!!!!!!!!!1"+t1.length()+"!!!!!!!!!"+t1.indexOf('%'));
+                                        if(t1.indexOf("%")<0)
+                                            continue;
+                                        t1=t1.substring(0,t1.indexOf('%'));
+
+                                        if(t1.matches("[0-9]+")&&t1.length()>0)
+                                            percentage_arraylist.add(Integer.parseInt(t1));//remove % and store the percentage
+                                        else
+                                            continue;
+
+                                        temp = temp.replaceAll("\\d+%", "");        //remove "10%"
+                                        temp = temp.replaceAll("\\d", "");          //remove any other digits
+
+                                        name_arraylist.add(temp);                   //store the string name*/
+
                     }
 
                 }
                 else
                 {
+                    String pattern = "\\d+(\\.\\d+)?%";
+                    // Create a Pattern object
+                    Pattern r = Pattern.compile(pattern);
+                    // Now create matcher object.
+                    Matcher m = r.matcher(s);
+                    if (m.find( ))
+                    {
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.group() );
+                        String percetage_number=m.group();
+                        if(percetage_number.length()<1||!percetage_number.contains("%"))
+                            continue;
+                        else
+                            percetage_number=percetage_number.substring(0,percetage_number.indexOf('%'));
+
+                        if(percetage_number.matches("[0-9]+")&&percetage_number.length()>0)
+                            percentage_arraylist.add(Integer.parseInt(percetage_number));//remove % and store the percentage
+                        else
+                            continue;
+
+                        String name=m.replaceAll("");
+                        name=name.replaceAll("\\d+[g|9]", "");
+                        name=name.replaceAll("\\d+mg", "");
+                        name=name.replaceAll("m[g|c][g]*","");
+                        name = name.replaceAll("\\d", "");
+                        name=name.replaceAll("[^a-zA-Z0-9]", "");
+                        name_arraylist.add(name);
+                    }
+
+
+                    /*
+                    String pattern = "\\d+(\\.\\d+)?%";
+
+                    // Create a Pattern object
+                    Pattern r = Pattern.compile(pattern);
+
+                    // Now create matcher object.
+                    Matcher m = r.matcher(s);
+                    if (m.find( )) {
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.group() );
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!group 0: "+m.group(0)+"!!!1: "+m.group(1)+"!!!!2: "+m.group(2));
+
+                    }
+
 
                     String temp = s.replaceAll("\\d+[g|9]", "");//remove  "10g"
 
@@ -240,6 +315,7 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                     temp = temp.replaceAll("\\d", "");          //remove any other digits
 
                     name_arraylist.add(temp);                   //store the string name
+                    */
                 }
 
             }
