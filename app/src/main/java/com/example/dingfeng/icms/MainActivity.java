@@ -1,6 +1,7 @@
 package com.example.dingfeng.icms;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,14 +10,19 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -28,6 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_CODE=1112;
 
     private Button processBtn;
+    private TextView infoText;
 
     private android.net.Uri selectedImage;
 
@@ -59,6 +67,19 @@ public class MainActivity extends AppCompatActivity {
 
     private int state;
 
+    private Button rectify;
+    int noOfPoints = 0;
+    DrawQuadView quadView;
+
+    int screenWidth = 0;
+    int screenHeight= 0;
+
+    int imageWidth = 0;
+    int imageHeight = 0;
+
+    float imageScale = 0;
+
+    float innerScreenHeight = 0;
 
     static {
         System.loadLibrary("opencv_java");
@@ -69,6 +90,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        android.graphics.Point size = new android.graphics.Point();
+        display.getSize(size);
+
+        screenWidth = size.x;
+        screenHeight = size.y;
+
+        innerScreenHeight = (screenHeight - dptopx(120));
 
         camera=(ImageButton) findViewById(R.id.camera);
         gallery=(ImageButton) findViewById(R.id.gallery);
@@ -91,11 +121,24 @@ public class MainActivity extends AppCompatActivity {
         rotate.setVisibility(View.INVISIBLE);
 
 
+        rectify=(Button) findViewById(R.id.rectify);
+        rectify.setVisibility(View.INVISIBLE);
+        quadView = (DrawQuadView)findViewById(R.id.drawquadview);
+        quadView.setVisibility(View.INVISIBLE);
+        //no of points user have touched (ranging from 0 - 4). At -1, rectify is not enabled. at 4, btn is enabled and clickable
+        int noOfPoints = 0;
+
+
         imageView=(ImageView) findViewById(R.id.imageView);
         processBtn = (Button) findViewById(R.id.process_btn);
         processBtn.setEnabled(false);
 
         state = 0;
+
+        infoText = (TextView) findViewById(R.id.info_tv);
+
+        infoText.setText("iW: "+imageWidth+" | iH: "+imageHeight+" \nsW: "+screenWidth+" | sH: "+screenHeight+"\nimg scale: "+imageScale);
+
 
         camera.setOnClickListener(
                 new View.OnClickListener() {
@@ -215,6 +258,28 @@ public class MainActivity extends AppCompatActivity {
                         bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
                         Utils.matToBitmap(_img, bitmapImage);
 
+
+
+
+                        imageWidth = bitmapImage.getWidth();
+                        imageHeight = bitmapImage.getHeight();
+
+                        if(imageHeight>imageWidth){
+                            if (imageHeight >= screenHeight - 120) {
+                                imageScale = screenHeight/(float)imageHeight;
+                            }
+                            else{
+                                imageScale = screenWidth/(float)imageWidth;
+                            }
+                        }else if(imageHeight<imageWidth){
+                            imageScale = screenWidth/(float)imageWidth;
+                        }else{
+                            imageScale = screenWidth/(float)imageWidth;
+                        }
+                        infoText.setText("iW: " + imageWidth + " | iH: " + imageHeight + " \nsW: " + screenWidth + " | sH: " + screenHeight + "\nimg scale: " + imageScale);
+
+
+
                         imageView.setImageBitmap(bitmapImage);
 
                         currentScale *=2;
@@ -241,9 +306,124 @@ public class MainActivity extends AppCompatActivity {
                         bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
                         Utils.matToBitmap(_img, bitmapImage);
 
+
+
+
+                        imageWidth = bitmapImage.getWidth();
+                        imageHeight = bitmapImage.getHeight();
+
+                        if(imageHeight>imageWidth){
+                            if (imageHeight >= screenHeight - 120) {
+                                imageScale = screenHeight/(float)imageHeight;
+                            }
+                            else{
+                                imageScale = screenWidth/(float)imageWidth;
+                            }
+                        }else if(imageHeight<imageWidth){
+                            imageScale = screenWidth/(float)imageWidth;
+                        }else{
+                            imageScale = screenWidth/(float)imageWidth;
+                        }
+                        infoText.setText("iW: " + imageWidth + " | iH: " + imageHeight + " \nsW: " + screenWidth + " | sH: " + screenHeight + "\nimg scale: " + imageScale);
+
+
+
                         imageView.setImageBitmap(bitmapImage);
                         currentScale *= 0.5;
                         Toast.makeText(getApplicationContext(),"shrink by 2x. Current Scale = "+currentScale,Toast.LENGTH_SHORT).show();
+
+
+
+                    }
+                }
+        );
+
+
+
+        rectify.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Mat _img=new Mat();
+                        Utils.bitmapToMat(bitmapImage, _img);
+                        Log.d("icms", "rectify.getText() = " + rectify.getText());
+
+//                        Imgproc.resize(_img, _img, new Size(_img.size().width * 0.5, _img.size().height * 0.5));
+
+                        if (rectify.getText().equals("PlaRec")){
+                            rectify.setText("0");
+                            quadView.setVisibility(View.VISIBLE);
+                            quadView.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+
+
+
+                                    if(event.getAction() == MotionEvent.ACTION_UP){
+                                        Toast.makeText(getApplicationContext(), "point touched on (" + event.getX() + ", " + event.getY() + ") ",Toast.LENGTH_SHORT).show();
+
+                                    }
+
+                                    if (event.getAction() == android.view.MotionEvent.ACTION_UP && quadView.getNoOfPoints()<4) {
+                                        quadView.addPoint((int) event.getX(), (int) event.getY());
+
+
+                                        Log.d("icms", "point set on (" + event.getX() + ", " + event.getY() + ") ");
+
+
+                                        rectify.setText(Integer.toString(quadView.getNoOfPoints()));
+                                        Log.d("icms","no of points = "+quadView.getNoOfPoints());
+
+                                    }
+
+                                    return true;
+                                }
+                            });
+                        }
+                        else if (quadView.getNoOfPoints() == 4) {
+                            //rectify here
+                            Toast.makeText(getApplicationContext(), "Rectifying!!", Toast.LENGTH_SHORT).show();
+
+                            _img = rectify(_img, quadView.getPoints());
+
+                            rectify.setText("PlaRec");
+                            quadView.resetCanvas();
+                            quadView.setVisibility(View.INVISIBLE);
+                        }
+                        else{
+                            int noLeft = 4 - quadView.getNoOfPoints();
+                            Toast.makeText(getApplicationContext(),"Tap another "+noLeft+" more point(s)!",Toast.LENGTH_SHORT).show();
+
+                        }
+
+
+//                        System.out.println("!!!!!!!!!!!!!!!!!!!shrink" + _img.size());
+                        bitmapImage=Bitmap.createBitmap(_img.cols(), _img.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(_img, bitmapImage);
+
+
+                        imageWidth = bitmapImage.getWidth();
+                        imageHeight = bitmapImage.getHeight();
+
+                        if(imageHeight>imageWidth){
+                            if (imageHeight >= screenHeight - 120) {
+                                imageScale = screenHeight/(float)imageHeight;
+                            }
+                            else{
+                                imageScale = screenWidth/(float)imageWidth;
+                            }
+                        }else if(imageHeight<imageWidth){
+                            imageScale = screenWidth/(float)imageWidth;
+                        }else{
+                            imageScale = screenWidth/(float)imageWidth;
+                        }
+                        infoText.setText("iW: " + imageWidth + " | iH: " + imageHeight + " \nsW: " + screenWidth + " | sH: " + screenHeight + "\nimg scale: " + imageScale);
+
+                        imageView.setImageBitmap(bitmapImage);
+//                        currentScale *= 0.5;
+//                        Toast.makeText(getApplicationContext(),"shrink by 2x. Current Scale = "+currentScale,Toast.LENGTH_SHORT).show();
+
 
 
 
@@ -282,6 +462,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void addRectPoints(float x, float y){
+
+        noOfPoints++;
+
+    }
+
     protected void onActivityResult(int requestCode,int resultCode,Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
@@ -293,6 +479,24 @@ public class MainActivity extends AppCompatActivity {
             selectedImage=data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+
+                imageHeight = bitmapImage.getHeight();
+                imageWidth = bitmapImage.getWidth();
+
+
+                if(imageHeight>imageWidth){
+                    if (imageHeight >= screenHeight - 120) {
+                        imageScale = screenHeight/(float)imageHeight;
+                    }
+                    else{
+                        imageScale = screenWidth/(float)imageWidth;
+                    }
+                }else if(imageHeight<imageWidth){
+                    imageScale = screenWidth/(float)imageWidth;
+                }else{
+                    imageScale = screenWidth/(float)imageWidth;
+                }
+
             }catch(IOException e){
 
             }
@@ -304,6 +508,10 @@ public class MainActivity extends AppCompatActivity {
             expand.setVisibility(View.VISIBLE);
             shrink.setVisibility(View.VISIBLE);
             rotate.setVisibility(View.VISIBLE);
+            rectify.setVisibility(View.VISIBLE);
+
+
+            infoText.setText("iW: " + imageWidth + " | iH: " + imageHeight + " \nsW: " + screenWidth + " | sH: " + screenHeight + "\nimg scale: " + imageScale);
 
         }
         else if(resultCode==RESULT_OK && requestCode==CAM_CODE)
@@ -313,6 +521,24 @@ public class MainActivity extends AppCompatActivity {
             selectedImage = data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+
+
+                imageHeight = bitmapImage.getHeight();
+                imageWidth = bitmapImage.getWidth();
+
+
+                if(imageHeight>imageWidth){
+                    if (imageHeight >= screenHeight - 120) {
+                        imageScale = screenHeight/(float)imageHeight;
+                    }
+                    else{
+                        imageScale = screenWidth/(float)imageWidth;
+                    }
+                }else if(imageHeight<imageWidth){
+                    imageScale = screenWidth/(float)imageWidth;
+                }else{
+                    imageScale = screenWidth/(float)imageWidth;
+                }
             }catch(IOException e){
 
             }
@@ -330,6 +556,10 @@ public class MainActivity extends AppCompatActivity {
             expand.setVisibility(View.VISIBLE);
             shrink.setVisibility(View.VISIBLE);
             rotate.setVisibility(View.VISIBLE);
+            rectify.setVisibility(View.VISIBLE);
+
+            infoText.setText("iW: "+imageWidth+" | iH: "+imageHeight+" \nsW: "+screenWidth+" | sH: "+screenHeight+"\nimg scale: "+imageScale);
+
         }
 
     }
@@ -366,7 +596,7 @@ public class MainActivity extends AppCompatActivity {
         Mat rotImage=Imgproc.getRotationMatrix2D(center, angle, 1.0);//100% scale
         Mat after_img=new Mat();
         Imgproc.warpAffine(_img,after_img,rotImage,after_img.size(),Imgproc.INTER_CUBIC,Imgproc.BORDER_TRANSPARENT, new Scalar(0));
-        return _img;
+        return after_img;
     }
 
     private Mat binarization(Mat _img)
@@ -382,6 +612,65 @@ public class MainActivity extends AppCompatActivity {
         return _img;
     }
 
+    private Mat rectify(Mat _img, ArrayList<android.graphics.Point> pts)
+    {
+        Point p1 = new Point(pts.get(0).x, pts.get(0).y);
+        Point p2 = new Point(pts.get(1).x, pts.get(1).y);
+        Point p3 = new Point(pts.get(2).x, pts.get(2).y);
+        Point p4 = new Point(pts.get(3).x, pts.get(3).y);
+
+        double cropWidth = Math.max(Math.abs(p1.x - p2.x),Math.abs(p3.x-p4.x));
+        double cropHeight = Math.max(Math.abs(p1.y - p4.y),Math.abs(p2.y-p3.y));
+
+        double aspectRatio = cropHeight/cropWidth;
+
+
+        double dstX1, dstX2, dstY1, dstY2;
+        double imWidth, imHeight;
+
+        //landscape
+        if (cropWidth>=cropHeight){
+
+            imWidth = screenWidth;
+            imHeight = (screenHeight -dptopx(120))* aspectRatio;
+
+            dstX1 = 0.0;
+            dstX2 = screenWidth;
+            dstY1 = innerScreenHeight/2 - imHeight/2;
+            dstY2 = innerScreenHeight/2 + imHeight/2;
+
+        }//portrait
+        else{
+
+            imWidth = screenWidth * (1/aspectRatio);
+            imHeight = (screenHeight -dptopx(120));
+
+            dstX1 = screenWidth/2 - imWidth/2;
+            dstX2 = screenWidth/2 + imWidth/2;
+            dstY1 = 0.0;
+            dstY2 = screenHeight;
+        }
+
+        Mat src_mat = new Mat(4,1, CvType.CV_32FC2);
+        Mat dst_mat = new Mat(4,1, CvType.CV_32FC2);
+
+        src_mat.put(0,0,p1.x,p1.y,p2.x,p2.y,p4.x,p4.y,p3.x,p3.y);
+        dst_mat.put(0,0,dstX1,dstY1,dstX2,dstY1,dstX1,dstY2,dstX2,dstY2);
+
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(src_mat,dst_mat);
+
+        Mat dst = _img.clone();
+
+        Imgproc.warpPerspective(_img, dst, perspectiveTransform, new Size(dstX2, dstY2), Imgproc.INTER_CUBIC);
+
+        return dst;
+    }
+
+    public float dptopx(int dp){
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        return px;
+    }
 
     private Uri storeImage(Bitmap image) {
         File pictureFile = getOutputMediaFile();
