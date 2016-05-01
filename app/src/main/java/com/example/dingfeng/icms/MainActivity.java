@@ -478,6 +478,9 @@ public class MainActivity extends AppCompatActivity {
         if(resultCode==RESULT_OK && requestCode==PICK_CODE)
         {
             Log.d("icms","------------New Gallery Pic-------------");
+
+            currentScale=1;//reset current image scale when loading new image
+
             selectedImage=data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
@@ -520,6 +523,10 @@ public class MainActivity extends AppCompatActivity {
         {
 
             Log.d("icms","--------New Cam Pic---------------");
+
+
+            currentScale=1;//reset current image scale when loading new image
+
             selectedImage = data.getData();
             try{
                 bitmapImage= MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
