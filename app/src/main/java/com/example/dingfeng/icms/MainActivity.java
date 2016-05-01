@@ -30,6 +30,7 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ImageButton camera;
@@ -353,7 +355,8 @@ public class MainActivity extends AppCompatActivity {
 
 //                        Imgproc.resize(_img, _img, new Size(_img.size().width * 0.5, _img.size().height * 0.5));
 
-                        if (rectify.getText().equals("PlaRec")){
+                        if (rectify.getText().equals("PlaRec"))
+                        {
                             rectify.setText("0");
                             quadView.setVisibility(View.VISIBLE);
                             quadView.setOnTouchListener(new View.OnTouchListener() {
@@ -629,6 +632,87 @@ public class MainActivity extends AppCompatActivity {
 
     private Mat rectify(Mat _img, ArrayList<android.graphics.Point> pts)
     {
+/*
+        Size size=_img.size();
+        int image_width=(int)size.width;
+        int image_height=(int) size.height;
+
+        Point p1 = new Point(pts.get(0).x, pts.get(0).y-(innerScreenHeight/2-image_height/2));
+        Point p2 = new Point(pts.get(1).x, pts.get(1).y-(innerScreenHeight/2-image_height/2));
+        Point p3 = new Point(pts.get(2).x, pts.get(2).y-(innerScreenHeight/2-image_height/2));
+        Point p4 = new Point(pts.get(3).x, pts.get(3).y-(innerScreenHeight/2-image_height/2));
+
+        int minX=(int)Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x));
+        int maxX=(int)Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x));
+
+        int minY=(int)Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y));
+        int maxY=(int)Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y));
+
+
+
+        System.out.println("!!!!!!!!!!!!!"+maxX+"!!!!"+maxY+"!!!"+minX+"!!!!!!"+minY);
+
+
+
+        Rect ROI = new Rect(minX ,minY, maxX-minX, maxY-minY);
+
+        int resultWidth = 200;
+        int resultHeight = 500;
+
+        Mat outputMat = new Mat();
+
+        Point ocvPIn1 = p1;
+        Point ocvPIn2 = p2;
+        Point ocvPIn3 = p3;
+        Point ocvPIn4 = p4;
+        List<Point> source = new ArrayList<Point>();
+        source.add(ocvPIn1);
+        source.add(ocvPIn2);
+        source.add(ocvPIn3);
+        source.add(ocvPIn4);
+        Mat startM = Converters.vector_Point2f_to_Mat(source);
+
+        Point ocvPOut1 = new Point(0, 0);
+        Point ocvPOut2 = new Point(resultWidth, 0);
+        Point ocvPOut3 = new Point(resultWidth, resultHeight);
+        Point ocvPOut4 = new Point(0, resultHeight);
+        List<Point> dest = new ArrayList<Point>();
+        dest.add(ocvPOut1);
+        dest.add(ocvPOut2);
+        dest.add(ocvPOut3);
+        dest.add(ocvPOut4);
+        Mat endM = Converters.vector_Point2f_to_Mat(dest);
+
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+
+        Imgproc.warpPerspective(_img.submat(ROI),
+                outputMat,
+                perspectiveTransform,
+                new Size(resultWidth, resultHeight),
+                Imgproc.INTER_CUBIC);
+
+
+        return outputMat;
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         Point p1 = new Point(pts.get(0).x, pts.get(0).y);
         Point p2 = new Point(pts.get(1).x, pts.get(1).y);
         Point p3 = new Point(pts.get(2).x, pts.get(2).y);
@@ -679,6 +763,8 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.warpPerspective(_img, dst, perspectiveTransform, new Size(dstX2, dstY2), Imgproc.INTER_CUBIC);
 
         return dst;
+
+
     }
 
     public float dptopx(int dp){
