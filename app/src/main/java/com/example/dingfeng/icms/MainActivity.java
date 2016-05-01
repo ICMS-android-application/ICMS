@@ -25,6 +25,8 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -594,8 +596,14 @@ public class MainActivity extends AppCompatActivity {
 
         Point center=new Point(size.width/2, size.height/2);
         Mat rotImage=Imgproc.getRotationMatrix2D(center, angle, 1.0);//100% scale
+
+        Rect bbox= new RotatedRect(center,size,angle).boundingRect();
+        rotImage.put(0,2,rotImage.get(0,2)[0]+bbox.width/2-center.x);
+        rotImage.put(1, 2,rotImage.get(1,2)[0]+bbox.height/2-center.y);
+
+
         Mat after_img=new Mat();
-        Imgproc.warpAffine(_img,after_img,rotImage,after_img.size(),Imgproc.INTER_CUBIC,Imgproc.BORDER_TRANSPARENT, new Scalar(0));
+        Imgproc.warpAffine(_img,after_img,rotImage,bbox.size(),Imgproc.INTER_CUBIC,Imgproc.BORDER_TRANSPARENT, new Scalar(0));
         return after_img;
     }
 

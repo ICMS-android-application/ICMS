@@ -179,12 +179,11 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
         for(String s : lists) {
             if (s.contains("%")&&s.replaceAll("\\D","").length()!=0)
             {
-                if(s.contains(".")||s.contains("-")||s.contains("~")) {
-                    String[] output = s.split("[.-~]");
+                if(s.contains(".")||s.contains("-")) {
+                    String[] output = s.split("[.-]");
 
                     for(String i:output)
                     {
-                        System.out.println("!!!!!!!!!!!!!!!!!!!!"+i);
                         String pattern = "\\d+(\\.\\d+)?%";
                         // Create a Pattern object
                         Pattern r = Pattern.compile(pattern);
@@ -192,8 +191,15 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                         Matcher m = r.matcher(i);
                         if (m.find( ))
                         {
-                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.group() );
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.start() );
+
                             String percetage_number=m.group();
+
+                            if(m.start()>0)
+                                percetage_number=i.substring(0,m.start()).replaceAll("\\D+","")+percetage_number;
+
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!  "+percetage_number );
+
                             if(percetage_number.length()<1||!percetage_number.contains("%"))
                                 continue;
                             else
@@ -209,6 +215,7 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                             name=name.replaceAll("\\d+mg", "");
                             name=name.replaceAll("m[g|c][g]*","");
                             name = name.replaceAll("\\d", "");
+                            name=name.replaceAll("[^a-zA-Z0-9]", "");
                             name_arraylist.add(name);
                         }
 
@@ -250,8 +257,13 @@ public class VisualisationFragment extends android.support.v4.app.Fragment {
                     Matcher m = r.matcher(s);
                     if (m.find( ))
                     {
-                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.group() );
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!Found value: " + m.start() );
                         String percetage_number=m.group();
+
+                        if(m.start()>0)
+                            percetage_number=s.substring(0,m.start()).replaceAll("\\D+","")+percetage_number;
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!  "+percetage_number );
+
                         if(percetage_number.length()<1||!percetage_number.contains("%"))
                             continue;
                         else
