@@ -65,7 +65,7 @@
             android:layout_height="50dp"
             android:scaleType="fitXY"
             android:id="@+id/rectify"
-            android:text="PlaRec"/>
+            android:text="R"/>
 
     </LinearLayout>
 

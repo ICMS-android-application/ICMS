@@ -53,11 +53,11 @@ public class PagerAdapter extends FragmentPagerAdapter{
 
             case 0:
 
-                return "Destination";
+                return "Ingredient";
 
             case 1:
 
-                return "Duration";
+                return "Nutrition";
             default:
                 return null;
         }

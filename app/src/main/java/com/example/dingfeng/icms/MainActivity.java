@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                        Imgproc.resize(_img, _img, new Size(_img.size().width * 0.5, _img.size().height * 0.5));
 
-                        if (rectify.getText().equals("PlaRec"))
+                        if (rectify.getText().equals("R"))
                         {
                             rectify.setText("0");
                             quadView.setVisibility(View.VISIBLE);
@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
 
                             _img = rectify(_img, quadView.getPoints());
 
-                            rectify.setText("PlaRec");
+                            rectify.setText("R");
                             quadView.resetCanvas();
                             quadView.setVisibility(View.INVISIBLE);
                         }
