@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
     float imageScale = 0;
 
     float innerScreenHeight = 0;
+    String fitTo = "none";
+
+    float innerScreenRatio = 0;
 
     static {
         System.loadLibrary("opencv_java");
@@ -102,7 +105,10 @@ public class MainActivity extends AppCompatActivity {
         screenWidth = size.x;
         screenHeight = size.y;
 
+
         innerScreenHeight = (screenHeight - dptopx(120));
+
+        innerScreenRatio = innerScreenHeight/screenWidth;
 
         camera=(ImageButton) findViewById(R.id.camera);
         gallery=(ImageButton) findViewById(R.id.gallery);
@@ -371,10 +377,13 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                     if (event.getAction() == android.view.MotionEvent.ACTION_UP && quadView.getNoOfPoints()<4) {
-                                        quadView.addPoint((int) event.getX(), (int) event.getY());
 
 
-                                        Log.d("icms", "point set on (" + event.getX() + ", " + event.getY() + ") ");
+
+                                        quadView.addPoint((int)event.getX(), (int)event.getY());
+
+
+                                        Log.d("icms", "point set on (" + (int)event.getX()+ ", " + (int)event.getY() + ") ");
 
 
                                         rectify.setText(Integer.toString(quadView.getNoOfPoints()));
@@ -491,9 +500,10 @@ public class MainActivity extends AppCompatActivity {
                 imageHeight = bitmapImage.getHeight();
                 imageWidth = bitmapImage.getWidth();
 
-
+                fitTo = "x";
                 if(imageHeight>imageWidth){
                     if (imageHeight >= screenHeight - 120) {
+                        fitTo = "y";
                         imageScale = screenHeight/(float)imageHeight;
                     }
                     else{
@@ -538,9 +548,11 @@ public class MainActivity extends AppCompatActivity {
                 imageHeight = bitmapImage.getHeight();
                 imageWidth = bitmapImage.getWidth();
 
-
+                fitTo = "x";
                 if(imageHeight>imageWidth){
+
                     if (imageHeight >= screenHeight - 120) {
+                        fitTo = "y";
                         imageScale = screenHeight/(float)imageHeight;
                     }
                     else{
@@ -697,26 +709,25 @@ public class MainActivity extends AppCompatActivity {
 
 */
 
+        int offset = 0 ;
 
+        Point p1,p2,p3,p4;
 
+        if(fitTo.equals("x")){
+            offset = (int)(innerScreenHeight/2 - (imageHeight*imageScale)/2);
 
+            p1 = new Point(pts.get(0).x/imageScale, (pts.get(0).y - offset)/imageScale);
+            p2 = new Point(pts.get(1).x/imageScale, (pts.get(1).y - offset)/imageScale);
+            p3 = new Point(pts.get(2).x/imageScale, (pts.get(2).y - offset)/imageScale);
+            p4 = new Point(pts.get(3).x/imageScale, (pts.get(3).y - offset)/imageScale);
+        }else{
+            offset = (int)(screenWidth/2 - (imageWidth*imageScale)/2);
 
-
-
-
-
-
-
-
-
-
-
-
-
-        Point p1 = new Point(pts.get(0).x, pts.get(0).y);
-        Point p2 = new Point(pts.get(1).x, pts.get(1).y);
-        Point p3 = new Point(pts.get(2).x, pts.get(2).y);
-        Point p4 = new Point(pts.get(3).x, pts.get(3).y);
+            p1 = new Point((pts.get(0).x - offset)/imageScale, pts.get(0).y/imageScale);
+            p2 = new Point((pts.get(1).x - offset)/imageScale, pts.get(1).y/imageScale);
+            p3 = new Point((pts.get(2).x - offset)/imageScale, pts.get(2).y/imageScale);
+            p4 = new Point((pts.get(3).x - offset)/imageScale, pts.get(3).y/imageScale);
+        }
 
         double cropWidth = Math.max(Math.abs(p1.x - p2.x),Math.abs(p3.x-p4.x));
         double cropHeight = Math.max(Math.abs(p1.y - p4.y),Math.abs(p2.y-p3.y));
@@ -727,27 +738,30 @@ public class MainActivity extends AppCompatActivity {
         double dstX1, dstX2, dstY1, dstY2;
         double imWidth, imHeight;
 
-        //landscape
-        if (cropWidth>=cropHeight){
+        //fill Width
+        if (aspectRatio <= innerScreenRatio){
 
             imWidth = screenWidth;
-            imHeight = (screenHeight -dptopx(120))* aspectRatio;
+            imHeight = (screenWidth)* aspectRatio;
 
+            //top left
             dstX1 = 0.0;
-            dstX2 = screenWidth;
             dstY1 = innerScreenHeight/2 - imHeight/2;
+            //bottom right
+            dstX2 = imWidth;
             dstY2 = innerScreenHeight/2 + imHeight/2;
 
-        }//portrait
+        }//fill Height
         else{
 
-            imWidth = screenWidth * (1/aspectRatio);
-            imHeight = (screenHeight -dptopx(120));
+            imWidth = screenHeight * (1/aspectRatio);
+            imHeight = innerScreenHeight;
 
             dstX1 = screenWidth/2 - imWidth/2;
-            dstX2 = screenWidth/2 + imWidth/2;
             dstY1 = 0.0;
-            dstY2 = screenHeight;
+
+            dstX2 = screenWidth/2 + imWidth/2;
+            dstY2 = imHeight;
         }
 
         Mat src_mat = new Mat(4,1, CvType.CV_32FC2);
